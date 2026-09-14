@@ -79,7 +79,7 @@ export function TrustlessWorkProvider({ children }: { children: React.ReactNode 
   return (
     <TrustlessWorkConfig
       baseURL={isMainnet ? mainNet : development}
-      apiKey={process.env.NEXT_PUBLIC_API_KEY ?? ''}
+      apiKey={process.env.TW_API_KEY ?? ''}
     >
       {children}
     </TrustlessWorkConfig>
@@ -141,7 +141,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 ```bash
 # .env.local (Next.js)
-NEXT_PUBLIC_API_KEY=your_trustless_work_api_key
+TW_API_KEY=your_trustless_work_api_key
 NEXT_PUBLIC_USE_MAINNET=false   # set to true for production
 
 # .env (Vite)

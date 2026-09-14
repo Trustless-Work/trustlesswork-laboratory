@@ -95,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* 2. TrustlessWorkConfig — handles API key + base URL */}
           <TrustlessWorkConfig
             baseURL={isMainnet ? mainNet : development}
-            apiKey={process.env.NEXT_PUBLIC_API_KEY ?? ''}
+            apiKey={process.env.TW_API_KEY ?? ''}
           >
 
             {/* 3. WalletProvider — your Stellar Wallets Kit context */}
@@ -174,7 +174,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
 ```bash
 # .env.local
-NEXT_PUBLIC_API_KEY=your_trustless_work_api_key
+TW_API_KEY=your_trustless_work_api_key
 NEXT_PUBLIC_USE_MAINNET=false   # true for production
 ```
 
@@ -334,7 +334,7 @@ Created by `npx trustless-work init`:
 {
   "version": "1.0.0",
   "network": "testnet",
-  "apiKey": "NEXT_PUBLIC_API_KEY",
+  "apiKey": "TW_API_KEY",
   "components": []
 }
 ```

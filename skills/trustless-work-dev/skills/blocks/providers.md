@@ -15,7 +15,11 @@ import { EscrowProvider } from "@/components/tw-blocks/providers/EscrowProvider"
 import { EscrowDialogsProvider } from "@/components/tw-blocks/providers/EscrowDialogsProvider";
 import { EscrowAmountProvider } from "@/components/tw-blocks/providers/EscrowAmountProvider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
@@ -24,9 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <WalletProvider>
               <EscrowProvider>
                 <EscrowDialogsProvider>
-                  <EscrowAmountProvider>
-                    {children}
-                  </EscrowAmountProvider>
+                  <EscrowAmountProvider>{children}</EscrowAmountProvider>
                 </EscrowDialogsProvider>
               </EscrowProvider>
             </WalletProvider>
@@ -53,13 +55,17 @@ Configures the Trustless Work API connection. This component wraps `TrustlessWor
 "use client";
 
 import {
-  development,  // "https://dev.api.trustlesswork.com"
-  mainNet,      // "https://api.trustlesswork.com"
+  development, // "https://dev.api.trustlesswork.com"
+  mainNet, // "https://api.trustlesswork.com"
   TrustlessWorkConfig,
 } from "@trustless-work/escrow";
 
-export function TrustlessWorkProvider({ children }: { children: React.ReactNode }) {
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY || "";
+export function TrustlessWorkProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const apiKey = process.env.TW_API_KEY || "";
 
   return (
     <TrustlessWorkConfig baseURL={development} apiKey={apiKey}>
@@ -84,14 +90,11 @@ Added automatically when CLI generates providers. Import path: `@/components/tw-
 ### Usage
 
 ```tsx
-import { useEscrowContext } from '@trustless-work/blocks';
+import { useEscrowContext } from "@trustless-work/blocks";
 
 function MyComponent() {
-  const {
-    selectedEscrow,
-    setSelectedEscrow,
-    updateEscrow
-  } = useEscrowContext();
+  const { selectedEscrow, setSelectedEscrow, updateEscrow } =
+    useEscrowContext();
 }
 ```
 
@@ -128,7 +131,11 @@ const handleMilestoneUpdate = async (payload) => {
     ...selectedEscrow,
     milestones: selectedEscrow.milestones.map((milestone, index) => {
       if (index === Number(payload.milestoneIndex)) {
-        return { ...milestone, status: payload.newStatus, evidence: payload.newEvidence };
+        return {
+          ...milestone,
+          status: payload.newStatus,
+          evidence: payload.newEvidence,
+        };
       }
       return milestone;
     }),
@@ -155,14 +162,16 @@ Import path: `@/components/tw-blocks/providers/EscrowDialogsProvider`
 ### Usage
 
 ```tsx
-import { useDialogState } from '@trustless-work/blocks';
+import { useDialogState } from "@trustless-work/blocks";
 
 function MyComponent() {
   const dialogStates = useDialogState();
 
   return (
     <>
-      <button onClick={() => dialogStates.first.setIsOpen(true)}>Open Dialog</button>
+      <button onClick={() => dialogStates.first.setIsOpen(true)}>
+        Open Dialog
+      </button>
     </>
   );
 }

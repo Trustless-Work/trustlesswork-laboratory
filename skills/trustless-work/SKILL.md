@@ -339,7 +339,7 @@ Step 3: POST /helper/send-transaction { signedXdr }  (or useSendTransaction hook
 
 ```bash
 # .env.local (Next.js — client-side SDK)
-NEXT_PUBLIC_API_KEY=your_trustless_work_api_key
+TW_API_KEY=your_trustless_work_api_key
 
 # .env (Node.js backend — server-side only)
 TW_API_KEY=your_trustless_work_api_key

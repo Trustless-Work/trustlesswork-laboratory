@@ -26,8 +26,8 @@ import { TrustlessWorkConfig } from "@trustless-work/escrow";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <TrustlessWorkConfig
-      baseURL="https://beta.api.trustlesswork.com"   // V2 has its own host
-      apiKey={process.env.NEXT_PUBLIC_API_KEY}
+      baseURL="https://beta.api.trustlesswork.com" // V2 has its own host
+      apiKey={process.env.TW_API_KEY}
     >
       {children}
     </TrustlessWorkConfig>
@@ -37,12 +37,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ### Configuration options
 
-| Prop | Type | Purpose |
-| --- | --- | --- |
-| `baseURL` | `string` | API host. V2 lives on `https://beta.api.trustlesswork.com`, not on the V1 hosts. |
-| `apiKey` | `string` | Sent as `x-api-key`. |
-| `getAccessToken` | `() => string \| undefined \| null` | Alternative to a static key — called per request, for session-based auth. |
-| `defaultHeaders` | `Record<string, string>` | Extra headers on every request. |
+| Prop             | Type                                | Purpose                                                                          |
+| ---------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
+| `baseURL`        | `string`                            | API host. V2 lives on `https://beta.api.trustlesswork.com`, not on the V1 hosts. |
+| `apiKey`         | `string`                            | Sent as `x-api-key`.                                                             |
+| `getAccessToken` | `() => string \| undefined \| null` | Alternative to a static key — called per request, for session-based auth.        |
+| `defaultHeaders` | `Record<string, string>`            | Extra headers on every request.                                                  |
 
 `apiKey` and `getAccessToken` can coexist; the getter is re-read on each call, so it suits rotating tokens.
 
@@ -104,20 +104,20 @@ A few methods are multi-release only and take no type: `releaseMilestones`, `dis
 
 ## Transaction hooks
 
-| Hook | Method | Signed by | Notes |
-| --- | --- | --- | --- |
-| `useDeployEscrow` | `deployEscrow(payload, type, attribution?)` | `signer` | Accepts optional attribution headers |
-| `useFundEscrow` | `fundEscrow(payload, type)` | any depositor | |
-| `useUpdateEscrow` | `updateEscrow(payload, type)` | `admin` | Only before the first fund (lock is cumulative `FundedAmount`, never resets) |
-| `useManageMilestones` | `manageMilestones(payload, type)` | `admin` | Add or edit milestones |
-| `useChangeMilestoneStatus` | `changeMilestoneStatus(payload, type)` | a service provider | Batched `updates` |
-| `useApproveMilestones` | `approveMilestones(payload, type)` | an approver | One vote per listed milestone |
-| `useApproveAndReleaseMilestones` | `approveAndReleaseMilestones(payload)` | approver + release signer | **Multi-release only** in the SDK (see above) |
-| `useReleaseFunds` | `releaseFunds(payload, type)` · `releaseMilestones(payload)` | a release signer | The second is multi-release only |
-| `useStartDispute` | `startDispute(payload, type)` · `disputeMilestones(payload)` | see below | `disputeMilestones` is multi-release only |
-| `useResolveDispute` | `resolveDispute(payload, type)` | a dispute resolver | |
-| `useWithdrawRemainingFunds` | `withdrawRemainingFunds(payload, type)` | a dispute resolver | Terminal escrows only |
-| `useSendTransaction` | `sendTransaction(signedXdr)` | — | `POST /stellar/send-transaction` |
+| Hook                             | Method                                                       | Signed by                 | Notes                                                                        |
+| -------------------------------- | ------------------------------------------------------------ | ------------------------- | ---------------------------------------------------------------------------- |
+| `useDeployEscrow`                | `deployEscrow(payload, type, attribution?)`                  | `signer`                  | Accepts optional attribution headers                                         |
+| `useFundEscrow`                  | `fundEscrow(payload, type)`                                  | any depositor             |                                                                              |
+| `useUpdateEscrow`                | `updateEscrow(payload, type)`                                | `admin`                   | Only before the first fund (lock is cumulative `FundedAmount`, never resets) |
+| `useManageMilestones`            | `manageMilestones(payload, type)`                            | `admin`                   | Add or edit milestones                                                       |
+| `useChangeMilestoneStatus`       | `changeMilestoneStatus(payload, type)`                       | a service provider        | Batched `updates`                                                            |
+| `useApproveMilestones`           | `approveMilestones(payload, type)`                           | an approver               | One vote per listed milestone                                                |
+| `useApproveAndReleaseMilestones` | `approveAndReleaseMilestones(payload)`                       | approver + release signer | **Multi-release only** in the SDK (see above)                                |
+| `useReleaseFunds`                | `releaseFunds(payload, type)` · `releaseMilestones(payload)` | a release signer          | The second is multi-release only                                             |
+| `useStartDispute`                | `startDispute(payload, type)` · `disputeMilestones(payload)` | see below                 | `disputeMilestones` is multi-release only                                    |
+| `useResolveDispute`              | `resolveDispute(payload, type)`                              | a dispute resolver        |                                                                              |
+| `useWithdrawRemainingFunds`      | `withdrawRemainingFunds(payload, type)`                      | a dispute resolver        | Terminal escrows only                                                        |
+| `useSendTransaction`             | `sendTransaction(signedXdr)`                                 | —                         | `POST /stellar/send-transaction`                                             |
 
 > **The submit route changed.** V1 documents `POST /helper/send-transaction`. SDK 5.x posts to `/stellar/send-transaction`. Use `useSendTransaction` and you never have to hardcode it.
 
@@ -131,15 +131,15 @@ These query the indexer read model, not the chain directly.
 
 > These hit the **read model** at `/escrows/...`, which is neither version-scoped nor type-scoped — there is no `/v2/` in those paths. The v2 transaction controllers expose their own `GET /escrow/{type}/v2/:contractId`, but the SDK does not use it. Read amounts come back as **decimal strings**.
 
-| Hook | Method | Returns |
-| --- | --- | --- |
-| `useGetEscrow` | `getEscrow(contractId)` | One escrow |
-| `useListEscrows` | `listEscrows(params?)` | Keyset-paginated list |
-| `useGetEscrowDetails` | `getEscrowDetails(contractIds)` | Batch detail lookup |
-| `useGetEscrowMilestones` | `getEscrowMilestones(contractId)` | Milestones for one escrow |
-| `useGetEscrowsMilestones` | `getEscrowsMilestones(contractIds)` | Milestones for many |
-| `useGetEscrowsFinancial` | `getEscrowsFinancial(contractIds)` | Financial summary for many |
-| `useListEscrowEvents` | `listEscrowEvents(contractId, params?)` | Event history |
+| Hook                      | Method                                  | Returns                    |
+| ------------------------- | --------------------------------------- | -------------------------- |
+| `useGetEscrow`            | `getEscrow(contractId)`                 | One escrow                 |
+| `useListEscrows`          | `listEscrows(params?)`                  | Keyset-paginated list      |
+| `useGetEscrowDetails`     | `getEscrowDetails(contractIds)`         | Batch detail lookup        |
+| `useGetEscrowMilestones`  | `getEscrowMilestones(contractId)`       | Milestones for one escrow  |
+| `useGetEscrowsMilestones` | `getEscrowsMilestones(contractIds)`     | Milestones for many        |
+| `useGetEscrowsFinancial`  | `getEscrowsFinancial(contractIds)`      | Financial summary for many |
+| `useListEscrowEvents`     | `listEscrowEvents(contractId, params?)` | Event history              |
 
 Batch hooks accept either a `string[]` of contract IDs or a params object — use the batch form rather than looping single reads.
 
@@ -147,14 +147,19 @@ Batch hooks accept either a `string[]` of contract IDs or a params object — us
 
 New in 5.x. Same read model, one round trip, and you choose the fields.
 
-| Hook | Method | REST twin |
-| --- | --- | --- |
-| `useGraphqlGetEscrow` | `getEscrow(variables)` | `GET /escrows/:id` |
-| `useGraphqlListEscrows` | `listEscrows(variables?)` | `GET /escrows` |
+| Hook                    | Method                    | REST twin          |
+| ----------------------- | ------------------------- | ------------------ |
+| `useGraphqlGetEscrow`   | `getEscrow(variables)`    | `GET /escrows/:id` |
+| `useGraphqlListEscrows` | `listEscrows(variables?)` | `GET /escrows`     |
 
 ```tsx
 const { listEscrows } = useGraphqlListEscrows();
-const page = await listEscrows({ scope: "mine", limit: 20, sort: "createdAt", order: "desc" });
+const page = await listEscrows({
+  scope: "mine",
+  limit: 20,
+  sort: "createdAt",
+  order: "desc",
+});
 ```
 
 `listEscrows` filters on `scope` (`"mine"` or `"all"`), `status`, `contractType`, `engagementId`, `contractIds`, `participant`, `role`, `platformId`, `subjectId` and a `createdAfter`/`createdBefore` range. Paginate with `limit` plus `cursor` — it is keyset pagination, not offsets. Sort by `createdAt` or `updatedAt`.
@@ -169,8 +174,8 @@ Prefer GraphQL when a screen needs several related pieces of one escrow; prefer 
 
 ```ts
 await deployEscrow(payload, "single-release", {
-  platformId: "my-platform",   // X-TW-Platform
-  subjectId: "user-123",       // X-TW-Subject
+  platformId: "my-platform", // X-TW-Platform
+  subjectId: "user-123", // X-TW-Subject
 });
 ```
 
@@ -190,9 +195,9 @@ import { TrustlessWorkClient, EscrowRestService } from "@trustless-work/escrow";
 
 ## Common mistakes
 
-* **Forgetting `sendTransaction`.** The hook returns `unsignedXdr`; nothing happens until you sign and submit.
-* **Mismatching `type` and payload.** `"single-release"` needs a `SingleRelease*Payload`.
-* **Signing with the wrong wallet.** Each operation names its required signer; the contract rejects anything else.
-* **Reusing V1 payload shapes.** Roles are arrays in v2, `milestoneIndexes` is `number[]`, and milestone approval is a threshold. See [skills/api/v2/core-concepts.md](../../api/v2/core-concepts.md).
-* **Pointing `baseURL` at a V1 host.** V2 is served only from `https://beta.api.trustlesswork.com`; neither `api.trustlesswork.com` nor `dev.api.trustlesswork.com` serves it.
-* **Expecting a `QueryClientProvider` requirement.** 5.x does not use TanStack Query; that was the 3.x pattern.
+- **Forgetting `sendTransaction`.** The hook returns `unsignedXdr`; nothing happens until you sign and submit.
+- **Mismatching `type` and payload.** `"single-release"` needs a `SingleRelease*Payload`.
+- **Signing with the wrong wallet.** Each operation names its required signer; the contract rejects anything else.
+- **Reusing V1 payload shapes.** Roles are arrays in v2, `milestoneIndexes` is `number[]`, and milestone approval is a threshold. See [skills/api/v2/core-concepts.md](../../api/v2/core-concepts.md).
+- **Pointing `baseURL` at a V1 host.** V2 is served only from `https://beta.api.trustlesswork.com`; neither `api.trustlesswork.com` nor `dev.api.trustlesswork.com` serves it.
+- **Expecting a `QueryClientProvider` requirement.** 5.x does not use TanStack Query; that was the 3.x pattern.

@@ -32,27 +32,27 @@ Trustless Work is **Escrow-as-a-Service (EaaS)** for stablecoin escrow. It enabl
 
 ### Core Roles
 
-| Role | Responsibility / authority granted by this assignment |
-|------|---------------|
-| **Service Provider** | Delivers work, updates milestone status, adds evidence, can raise disputes |
-| **Approver** | Validates completion, approves milestones, can raise disputes |
-| **Release Signer** | Executes fund releases after approvals, can raise disputes |
-| **Receiver** | Final recipient of released funds; can raise disputes |
+| Role                 | Responsibility / authority granted by this assignment                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------- |
+| **Service Provider** | Delivers work, updates milestone status, adds evidence, can raise disputes                        |
+| **Approver**         | Validates completion, approves milestones, can raise disputes                                     |
+| **Release Signer**   | Executes fund releases after approvals, can raise disputes                                        |
+| **Receiver**         | Final recipient of released funds; can raise disputes                                             |
 | **Dispute Resolver** | Resolves disputes by distributing funds; the address assigned to this role cannot raise a dispute |
-| **Platform Address** | Receives platform fees; can update escrow subject to lifecycle restrictions; can raise disputes |
+| **Platform Address** | Receives platform fees; can update escrow subject to lifecycle restrictions; can raise disputes   |
 
 ### Role Capability Matrix
 
 The matrix describes what each role assignment authorizes **by itself**. If one address holds multiple roles, its effective authority is the combination of those assignments, except where the contract explicitly prohibits an action for that address (notably `disputeResolver` raising a dispute).
 
-| Role assignment | Update milestone status | Approve | Raise dispute | Resolve | Release | Receive payout | Receive fee |
-|------|-------------|---------|--------------|---------|---------|---------------|------------|
-| Service Provider | Yes | No | Yes | No | No | Only if also a receiver | No |
-| Approver | No | Yes | Yes | No | No | Only if also a receiver | No |
-| Release Signer | No | No | Yes | No | Yes | Only if also a receiver | No |
-| Receiver | No | No | Yes | No | No | Yes | No |
-| Dispute Resolver | No | No | **No — explicitly prohibited** | Yes | No | Only if also a distribution recipient | No |
-| Platform Address | No | No | Yes | No | No | Only if also a receiver/distribution recipient | Yes |
+| Role assignment  | Update milestone status | Approve | Raise dispute                  | Resolve | Release | Receive payout                                 | Receive fee |
+| ---------------- | ----------------------- | ------- | ------------------------------ | ------- | ------- | ---------------------------------------------- | ----------- |
+| Service Provider | Yes                     | No      | Yes                            | No      | No      | Only if also a receiver                        | No          |
+| Approver         | No                      | Yes     | Yes                            | No      | No      | Only if also a receiver                        | No          |
+| Release Signer   | No                      | No      | Yes                            | No      | Yes     | Only if also a receiver                        | No          |
+| Receiver         | No                      | No      | Yes                            | No      | No      | Yes                                            | No          |
+| Dispute Resolver | No                      | No      | **No — explicitly prohibited** | Yes     | No      | Only if also a distribution recipient          | No          |
+| Platform Address | No                      | No      | Yes                            | No      | No      | Only if also a receiver/distribution recipient | Yes         |
 
 ### Important Distinctions
 
@@ -96,6 +96,7 @@ Testnet:  https://dev.api.trustlesswork.com
 ```
 
 **Swagger UI:**
+
 - Mainnet: `https://api.trustlesswork.com/docs`
 - Testnet: `https://dev.api.trustlesswork.com/docs`
 
@@ -139,14 +140,17 @@ All escrow write operations follow this pattern:
 
 ```typescript
 // 1. Get unsigned transaction (testnet base URL — use https://api.trustlesswork.com for mainnet)
-const response = await fetch('https://dev.api.trustlesswork.com/deployer/single-release', {
-  method: 'POST',
-  headers: {
-    'x-api-key': apiKey,
-    'Content-Type': 'application/json'
+const response = await fetch(
+  "https://dev.api.trustlesswork.com/deployer/single-release",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(deployPayload),
   },
-  body: JSON.stringify(deployPayload)
-});
+);
 
 const { unsignedTransaction } = await response.json();
 
@@ -157,19 +161,22 @@ const { signedTxXdr } = await signTransaction(unsignedTransaction, {
 });
 
 // 3. Submit transaction
-const submitResponse = await fetch('https://dev.api.trustlesswork.com/helper/send-transaction', {
-  method: 'POST',
-  headers: {
-    'x-api-key': apiKey,
-    'Content-Type': 'application/json'
+const submitResponse = await fetch(
+  "https://dev.api.trustlesswork.com/helper/send-transaction",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ signedXdr: signedTxXdr }),
   },
-  body: JSON.stringify({ signedXdr: signedTxXdr })
-});
+);
 
 // 4. Verify on-chain
 const verifyResponse = await fetch(
   `https://dev.api.trustlesswork.com/helper/get-escrows-by-signer?signer=${signerAddress}&validateOnChain=true`,
-  { headers: { 'x-api-key': apiKey } }
+  { headers: { "x-api-key": apiKey } },
 );
 ```
 
@@ -178,7 +185,7 @@ const verifyResponse = await fetch(
 ### Security
 
 1. **Never commit API keys** to repos — load them from environment variables and rotate them from the dApp if leaked
-2. **Know the key model**: the official V1 SDK pattern uses `NEXT_PUBLIC_API_KEY`, which is browser-visible by design — treat Trustless Work API keys as client-visible application keys. Stellar secret keys (`S...`) are absolute secrets and never leave the user's wallet
+2. **Know the key model**: the official V1 SDK pattern uses `TW_API_KEY`, which is browser-visible by design — treat Trustless Work API keys as client-visible application keys. Stellar secret keys (`S...`) are absolute secrets and never leave the user's wallet
 3. **Validate on-chain** when displaying escrow data (`validateOnChain=true`)
 4. **Verify transaction signatures** before submitting
 5. **Handle errors gracefully** with user-friendly messages
@@ -193,7 +200,7 @@ const http = axios.create({
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
-    "x-api-key": process.env.NEXT_PUBLIC_API_KEY,
+    "x-api-key": process.env.TW_API_KEY,
   },
 });
 
@@ -205,13 +212,15 @@ async function callTrustlessWorkAPI(endpoint: string, options: RequestInit) {
     const status = error.response?.status;
     switch (status) {
       case 401:
-        throw new Error('Invalid API key. Check your API key in settings.');
+        throw new Error("Invalid API key. Check your API key in settings.");
       case 404:
-        throw new Error('Escrow not found');
+        throw new Error("Escrow not found");
       case 429:
-        throw new Error('Rate limit exceeded. Please try again later.');
+        throw new Error("Rate limit exceeded. Please try again later.");
       default:
-        throw new Error(error.response?.data?.message || `API error: ${status}`);
+        throw new Error(
+          error.response?.data?.message || `API error: ${status}`,
+        );
     }
   }
 }

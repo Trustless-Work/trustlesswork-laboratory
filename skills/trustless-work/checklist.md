@@ -8,7 +8,7 @@ Use this checklist before going to production. Each item maps to a verifiable si
 
 - [ ] **Trustlines established** — Every participant wallet has added the trustline for the escrow asset (USDC/EURC) directly from their own wallet. The `/helper/set-trustline` endpoint no longer exists — users must find the asset in their wallet and add it manually. Verified before any escrow transaction.
 - [ ] **Correct `trustline` object in deploy payload** — `trustline` is an object `{ address: "G…", symbol: "USDC" }`. The `address` must be the **G… Stellar issuer address** of the asset, NOT the C… Soroban contract address.
-- [ ] **API key stored in env var** — `NEXT_PUBLIC_API_KEY` or `TW_API_KEY`, never hardcoded in source.
+- [ ] **API key stored in env var** — `TW_API_KEY` or `TW_API_KEY`, never hardcoded in source.
 - [ ] **API key not in server-rendered output** — Either use `NEXT_PUBLIC_` only on client components, or proxy via Route Handlers.
 - [ ] **XDR sign → submit pattern implemented** — Every write call: receive `unsignedTransaction` → `kit.signTransaction()` → `sendTransaction({ signedXdr })`.
 - [ ] **Correct role signs each operation** — See SKILL.md role-to-operation table.
@@ -46,7 +46,7 @@ Use this checklist before going to production. Each item maps to a verifiable si
 - [ ] `@creit.tech/stellar-wallets-kit` in `dependencies`
 - [ ] `TrustlessWorkConfig` is a client component (`"use client"` in Next.js)
 - [ ] Provider order correct: `QueryClientProvider` → `TrustlessWorkConfig` → `WalletProvider`
-- [ ] `NEXT_PUBLIC_API_KEY` in `.env.local` (Next.js) or `VITE_API_KEY` (Vite)
+- [ ] `TW_API_KEY` in `.env.local` (Next.js) or `VITE_API_KEY` (Vite)
 - [ ] `useSendTransaction` called after every write hook + signing
 - [ ] `useInitializeEscrow` → `deployEscrow(payload, type)` — type matches your escrow type
 - [ ] Single vs multi-release payloads used correctly (multi needs `milestoneIndex`)
@@ -74,7 +74,7 @@ Use this checklist before going to production. Each item maps to a verifiable si
 - [ ] API keys only in `.env*` files (in `.gitignore`)
 - [ ] No private keys in source code or env vars client-side
 - [ ] No secrets in git history
-- [ ] `NEXT_PUBLIC_API_KEY` reviewed — acceptable to expose? (Consider Route Handler proxy)
+- [ ] `TW_API_KEY` reviewed — acceptable to expose? (Consider Route Handler proxy)
 - [ ] Stellar addresses validated before escrow deployment
 
 ---

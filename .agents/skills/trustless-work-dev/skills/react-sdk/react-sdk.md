@@ -28,8 +28,8 @@ Create a client component that wraps `TrustlessWorkConfig`:
 
 import React from "react";
 import {
-  development,  // "https://dev.api.trustlesswork.com" (testnet)
-  mainNet,      // "https://api.trustlesswork.com" (mainnet)
+  development, // "https://dev.api.trustlesswork.com" (testnet)
+  mainNet, // "https://api.trustlesswork.com" (mainnet)
   TrustlessWorkConfig,
 } from "@trustless-work/escrow";
 
@@ -37,8 +37,10 @@ interface TrustlessWorkProviderProps {
   children: React.ReactNode;
 }
 
-export function TrustlessWorkProvider({ children }: TrustlessWorkProviderProps) {
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY || "";
+export function TrustlessWorkProvider({
+  children,
+}: TrustlessWorkProviderProps) {
+  const apiKey = process.env.TW_API_KEY || "";
 
   return (
     <TrustlessWorkConfig baseURL={development} apiKey={apiKey}>
@@ -56,7 +58,11 @@ export function TrustlessWorkProvider({ children }: TrustlessWorkProviderProps) 
 // app/layout.tsx (Next.js App Router)
 import { TrustlessWorkProvider } from "@/trustless-work-provider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
@@ -70,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ### Environment Variables
 
 ```env
-NEXT_PUBLIC_API_KEY=your_api_key_here
+TW_API_KEY=your_api_key_here
 ```
 
 > All API calls — including read-only indexer queries — require a valid API key. The deployed API returns `401 Unauthorized` without it.
@@ -78,13 +84,14 @@ NEXT_PUBLIC_API_KEY=your_api_key_here
 ## Hooks Overview
 
 All write hooks return an **unsigned XDR transaction** that must be:
+
 1. Signed with the wallet that holds the required role
 2. Submitted via `useSendTransaction`
 
 ### Common 3-Step Pattern
 
 ```tsx
-import { useSomeHook, useSendTransaction } from '@trustless-work/escrow/hooks';
+import { useSomeHook, useSendTransaction } from "@trustless-work/escrow/hooks";
 
 function MyComponent() {
   const { someFunction } = useSomeHook();
@@ -92,7 +99,10 @@ function MyComponent() {
 
   const handleAction = async (payload) => {
     // Step 1: Get unsigned transaction from hook
-    const { unsignedTransaction } = await someFunction(payload, "multi-release");
+    const { unsignedTransaction } = await someFunction(
+      payload,
+      "multi-release",
+    );
 
     if (!unsignedTransaction) throw new Error("Missing unsigned transaction");
 
@@ -119,11 +129,11 @@ function MyComponent() {
 Deploy and initialize an escrow contract.
 
 ```tsx
-import { useInitializeEscrow } from '@trustless-work/escrow/hooks';
+import { useInitializeEscrow } from "@trustless-work/escrow/hooks";
 import {
   InitializeSingleReleaseEscrowPayload,
-  InitializeMultiReleaseEscrowPayload
-} from '@trustless-work/escrow/types';
+  InitializeMultiReleaseEscrowPayload,
+} from "@trustless-work/escrow/types";
 
 const { deployEscrow } = useInitializeEscrow();
 
@@ -141,15 +151,15 @@ const { unsignedTransaction } = await deployEscrow(payload, "multi-release");
 Deposit funds into an existing escrow contract.
 
 ```tsx
-import { useFundEscrow } from '@trustless-work/escrow/hooks';
-import { FundEscrowPayload } from '@trustless-work/escrow/types';
+import { useFundEscrow } from "@trustless-work/escrow/hooks";
+import { FundEscrowPayload } from "@trustless-work/escrow/types";
 
 const { fundEscrow } = useFundEscrow();
 
 const payload: FundEscrowPayload = {
-  contractId: 'CHASVBD...',
+  contractId: "CHASVBD...",
   amount: 5000,
-  signer: payerAddress
+  signer: payerAddress,
 };
 
 const { unsignedTransaction } = await fundEscrow(payload, "single-release");
@@ -161,20 +171,23 @@ const { unsignedTransaction } = await fundEscrow(payload, "single-release");
 Service provider updates the status and evidence of a milestone.
 
 ```tsx
-import { useChangeMilestoneStatus } from '@trustless-work/escrow/hooks';
-import { ChangeMilestoneStatusPayload } from '@trustless-work/escrow/types';
+import { useChangeMilestoneStatus } from "@trustless-work/escrow/hooks";
+import { ChangeMilestoneStatusPayload } from "@trustless-work/escrow/types";
 
 const { changeMilestoneStatus } = useChangeMilestoneStatus();
 
 const payload: ChangeMilestoneStatusPayload = {
-  contractId: 'CHASVBD...',
-  milestoneIndex: '0',
-  newStatus: 'Completed',
-  newEvidence: 'https://example.com/proof.pdf',
-  serviceProvider: serviceProviderAddress
+  contractId: "CHASVBD...",
+  milestoneIndex: "0",
+  newStatus: "Completed",
+  newEvidence: "https://example.com/proof.pdf",
+  serviceProvider: serviceProviderAddress,
 };
 
-const { unsignedTransaction } = await changeMilestoneStatus(payload, "multi-release");
+const { unsignedTransaction } = await changeMilestoneStatus(
+  payload,
+  "multi-release",
+);
 ```
 
 ### useApproveMilestone
@@ -182,18 +195,21 @@ const { unsignedTransaction } = await changeMilestoneStatus(payload, "multi-rele
 Approver approves a milestone.
 
 ```tsx
-import { useApproveMilestone } from '@trustless-work/escrow/hooks';
-import { ApproveMilestonePayload } from '@trustless-work/escrow/types';
+import { useApproveMilestone } from "@trustless-work/escrow/hooks";
+import { ApproveMilestonePayload } from "@trustless-work/escrow/types";
 
 const { approveMilestone } = useApproveMilestone();
 
 const payload: ApproveMilestonePayload = {
-  contractId: 'CHASVBD...',
-  milestoneIndex: '0',
-  approver: approverAddress
+  contractId: "CHASVBD...",
+  milestoneIndex: "0",
+  approver: approverAddress,
 };
 
-const { unsignedTransaction } = await approveMilestone(payload, "multi-release");
+const { unsignedTransaction } = await approveMilestone(
+  payload,
+  "multi-release",
+);
 ```
 
 ### useReleaseFunds
@@ -201,24 +217,28 @@ const { unsignedTransaction } = await approveMilestone(payload, "multi-release")
 Release Signer releases escrow funds.
 
 ```tsx
-import { useReleaseFunds } from '@trustless-work/escrow/hooks';
+import { useReleaseFunds } from "@trustless-work/escrow/hooks";
 import {
   SingleReleaseReleaseFundsPayload,
-  MultiReleaseReleaseFundsPayload
-} from '@trustless-work/escrow/types';
+  MultiReleaseReleaseFundsPayload,
+} from "@trustless-work/escrow/types";
 
 const { releaseFunds } = useReleaseFunds();
 
 // Single-release (all funds at once)
 const { unsignedTransaction } = await releaseFunds(
-  { contractId: 'CHASVBD...', releaseSigner: releaseSignerAddress },
-  "single-release"
+  { contractId: "CHASVBD...", releaseSigner: releaseSignerAddress },
+  "single-release",
 );
 
 // Multi-release (per milestone)
 const { unsignedTransaction } = await releaseFunds(
-  { contractId: 'CHASVBD...', milestoneIndex: '0', releaseSigner: releaseSignerAddress },
-  "multi-release"
+  {
+    contractId: "CHASVBD...",
+    milestoneIndex: "0",
+    releaseSigner: releaseSignerAddress,
+  },
+  "multi-release",
 );
 ```
 
@@ -227,20 +247,20 @@ const { unsignedTransaction } = await releaseFunds(
 Initiate a dispute.
 
 ```tsx
-import { useStartDispute } from '@trustless-work/escrow/hooks';
+import { useStartDispute } from "@trustless-work/escrow/hooks";
 
 const { startDispute } = useStartDispute();
 
 // Single-release (entire escrow)
 const { unsignedTransaction } = await startDispute(
-  { contractId: 'CHASVBD...', signer: payerAddress },
-  "single-release"
+  { contractId: "CHASVBD...", signer: payerAddress },
+  "single-release",
 );
 
 // Multi-release (specific milestone)
 const { unsignedTransaction } = await startDispute(
-  { contractId: 'CHASVBD...', milestoneIndex: '0', signer: payerAddress },
-  "multi-release"
+  { contractId: "CHASVBD...", milestoneIndex: "0", signer: payerAddress },
+  "multi-release",
 );
 ```
 
@@ -249,20 +269,20 @@ const { unsignedTransaction } = await startDispute(
 Dispute Resolver distributes funds to resolve a dispute.
 
 ```tsx
-import { useResolveDispute } from '@trustless-work/escrow/hooks';
+import { useResolveDispute } from "@trustless-work/escrow/hooks";
 
 const { resolveDispute } = useResolveDispute();
 
 const { unsignedTransaction } = await resolveDispute(
   {
-    contractId: 'CHASVBD...',
+    contractId: "CHASVBD...",
     disputeResolver: disputeResolverAddress,
     distributions: [
       { address: serviceProviderAddress, amount: 4000 },
-      { address: payerAddress, amount: 900 }
-    ]
+      { address: payerAddress, amount: 900 },
+    ],
   },
-  "single-release"
+  "single-release",
 );
 ```
 
@@ -271,7 +291,7 @@ const { unsignedTransaction } = await resolveDispute(
 Update escrow properties (platform address only, before funding or to add milestones).
 
 ```tsx
-import { useUpdateEscrow } from '@trustless-work/escrow/hooks';
+import { useUpdateEscrow } from "@trustless-work/escrow/hooks";
 
 const { updateEscrow } = useUpdateEscrow();
 
@@ -283,7 +303,7 @@ const { unsignedTransaction } = await updateEscrow(payload, "single-release");
 Withdraw remaining funds from a multi-release escrow after completion or resolution.
 
 ```tsx
-import { useWithdrawRemainingFunds } from '@trustless-work/escrow/hooks';
+import { useWithdrawRemainingFunds } from "@trustless-work/escrow/hooks";
 
 const { withdrawRemainingFunds } = useWithdrawRemainingFunds();
 
@@ -296,7 +316,7 @@ const { unsignedTransaction } = await withdrawRemainingFunds(payload);
 Submit a signed transaction to the network. **Required after every write hook.**
 
 ```tsx
-import { useSendTransaction } from '@trustless-work/escrow/hooks';
+import { useSendTransaction } from "@trustless-work/escrow/hooks";
 
 const { sendTransaction } = useSendTransaction();
 
@@ -306,6 +326,7 @@ const data = await sendTransaction(signedXdr);
 ```
 
 **Response types:**
+
 - Standard: `{ status, message }`
 - Initialize/Update escrow: `{ status, message, contractId, escrow }`
 
@@ -339,18 +360,21 @@ import type {
   SingleReleaseEscrow,
   MultiReleaseEscrow,
   EscrowType,
-  SingleReleaseEscrowStatus
-} from '@trustless-work/escrow/types';
+  SingleReleaseEscrowStatus,
+} from "@trustless-work/escrow/types";
 ```
 
 ## Complete Example
 
 ```tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useInitializeEscrow, useSendTransaction } from '@trustless-work/escrow/hooks';
-import { InitializeSingleReleaseEscrowPayload } from '@trustless-work/escrow/types';
+import { useState } from "react";
+import {
+  useInitializeEscrow,
+  useSendTransaction,
+} from "@trustless-work/escrow/hooks";
+import { InitializeSingleReleaseEscrowPayload } from "@trustless-work/escrow/types";
 
 export function CreateEscrowForm() {
   const { deployEscrow } = useInitializeEscrow();
@@ -362,9 +386,9 @@ export function CreateEscrowForm() {
 
     const payload: InitializeSingleReleaseEscrowPayload = {
       signer: walletAddress,
-      engagementId: 'project-123',
-      title: 'Website Development',
-      description: 'Build responsive website',
+      engagementId: "project-123",
+      title: "Website Development",
+      description: "Build responsive website",
       roles: {
         approver: approverAddress,
         serviceProvider: serviceProviderAddress,
@@ -376,20 +400,26 @@ export function CreateEscrowForm() {
       amount: 5000,
       platformFee: 100,
       milestones: [
-        { description: 'Design mockups' },
-        { description: 'Frontend development' },
+        { description: "Design mockups" },
+        { description: "Frontend development" },
       ],
       trustline: {
-        address: 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5', // testnet USDC
-        symbol: 'USDC',
+        address: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5", // testnet USDC
+        symbol: "USDC",
       },
     };
 
     // Step 1: Get unsigned transaction
-    const { unsignedTransaction } = await deployEscrow(payload, "single-release");
+    const { unsignedTransaction } = await deployEscrow(
+      payload,
+      "single-release",
+    );
 
     // Step 2: Sign with wallet
-    const signedXdr = await signTransaction({ unsignedTransaction, address: walletAddress });
+    const signedXdr = await signTransaction({
+      unsignedTransaction,
+      address: walletAddress,
+    });
 
     // Step 3: Send transaction
     const data = await sendTransaction(signedXdr);

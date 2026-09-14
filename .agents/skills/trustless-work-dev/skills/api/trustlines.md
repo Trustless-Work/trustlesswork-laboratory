@@ -7,6 +7,7 @@ Trustlines are required for accounts to hold and transact with non-native assets
 ## What is a Trustline?
 
 A trustline is an explicit opt-in configuration that authorizes a Stellar account to:
+
 - Hold a specific asset
 - Receive that asset
 - Transact with that asset
@@ -84,14 +85,14 @@ const http = axios.create({
   baseURL: "https://dev.api.trustlesswork.com",
   headers: {
     "Content-Type": "application/json",
-    "x-api-key": process.env.NEXT_PUBLIC_API_KEY,
+    "x-api-key": process.env.TW_API_KEY,
   },
 });
 
 export const setTrustline = async (address: string, assetAddress: string) => {
   const response = await http.post("/helper/set-trustline", {
-    address,        // Stellar account address
-    assetAddress,   // Token issuer address
+    address, // Stellar account address
+    assetAddress, // Token issuer address
   });
 
   const { unsignedTransaction } = response.data;
@@ -120,23 +121,33 @@ All parties involved in an escrow must have trustlines established:
 ### Using Stellar SDK
 
 ```typescript
-import { Horizon, Asset, TransactionBuilder, Operation, Networks } from '@stellar/stellar-sdk';
+import {
+  Horizon,
+  Asset,
+  TransactionBuilder,
+  Operation,
+  Networks,
+} from "@stellar/stellar-sdk";
 
-async function establishTrustline(accountAddress: string, assetCode: string, issuer: string) {
-  const server = new Horizon.Server('https://horizon.stellar.org');
+async function establishTrustline(
+  accountAddress: string,
+  assetCode: string,
+  issuer: string,
+) {
+  const server = new Horizon.Server("https://horizon.stellar.org");
   const account = await server.loadAccount(accountAddress);
 
   const asset = new Asset(assetCode, issuer);
-  
+
   const transaction = new TransactionBuilder(account, {
-    fee: '100',
-    networkPassphrase: Networks.PUBLIC
+    fee: "100",
+    networkPassphrase: Networks.PUBLIC,
   })
     .addOperation(
       Operation.changeTrust({
         asset: asset,
-        limit: '922337203685.4775807' // Max int64
-      })
+        limit: "922337203685.4775807", // Max int64
+      }),
     )
     .setTimeout(30)
     .build();
@@ -168,7 +179,9 @@ export const TRUSTLINES = {
 
 // Use in escrow deployment
 const isTestnet = process.env.NEXT_PUBLIC_NETWORK === "testnet";
-const usdcTrustline = isTestnet ? TRUSTLINES.USDC_TESTNET : TRUSTLINES.USDC_MAINNET;
+const usdcTrustline = isTestnet
+  ? TRUSTLINES.USDC_TESTNET
+  : TRUSTLINES.USDC_MAINNET;
 ```
 
 ## Amount Handling
@@ -191,20 +204,25 @@ function fromStellarAmount(amount: string): number {
 ## Checking Trustline Status
 
 ```typescript
-import { Horizon } from '@stellar/stellar-sdk';
+import { Horizon } from "@stellar/stellar-sdk";
 
-async function checkTrustline(accountAddress: string, assetCode: string, issuer: string) {
-  const server = new Horizon.Server('https://horizon.stellar.org');
+async function checkTrustline(
+  accountAddress: string,
+  assetCode: string,
+  issuer: string,
+) {
+  const server = new Horizon.Server("https://horizon.stellar.org");
   const account = await server.loadAccount(accountAddress);
-  
+
   const trustline = account.balances.find(
-    balance => balance.asset_code === assetCode && balance.asset_issuer === issuer
+    (balance) =>
+      balance.asset_code === assetCode && balance.asset_issuer === issuer,
   );
 
   return {
     exists: !!trustline,
-    balance: trustline?.balance || '0',
-    limit: trustline?.limit || '0'
+    balance: trustline?.balance || "0",
+    limit: trustline?.limit || "0",
   };
 }
 ```
@@ -212,14 +230,17 @@ async function checkTrustline(accountAddress: string, assetCode: string, issuer:
 ## Common Issues
 
 ### "Asset Not Found" Error
+
 - **Cause**: Account doesn't have trustline for the asset
 - **Solution**: Establish trustline before attempting to receive/hold asset
 
 ### "Insufficient Balance" Error
+
 - **Cause**: Account doesn't have enough XLM for trustline reserve (0.5 XLM)
 - **Solution**: Fund account with at least 0.5 XLM + transaction fees
 
 ### Wrong Network Address
+
 - **Cause**: Using mainnet USDC address on testnet or vice versa
 - **Solution**: Use `GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5` for testnet USDC
 

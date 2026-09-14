@@ -274,7 +274,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <TrustlessWorkConfig
         baseURL={isMainnet ? mainNet : development}
-        apiKey={process.env.NEXT_PUBLIC_API_KEY ?? ""}
+        apiKey={process.env.TW_API_KEY ?? ""}
       >
         <WalletProvider>{children}</WalletProvider>
       </TrustlessWorkConfig>
@@ -463,7 +463,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <TrustlessWorkConfig
         baseURL={isMainnet ? mainNet : development}
-        apiKey={process.env.NEXT_PUBLIC_API_KEY ?? ""}
+        apiKey={process.env.TW_API_KEY ?? ""}
       >
         <WalletProvider>{children}</WalletProvider>
       </TrustlessWorkConfig>

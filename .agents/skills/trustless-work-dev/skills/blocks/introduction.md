@@ -43,6 +43,7 @@ npx trustless-work init
 ```
 
 **What `init` does:**
+
 - Installs `shadcn/ui` components (with interactive prompts)
 - Installs all required dependencies (listed above)
 - Creates `.twblocks.json` configuration file
@@ -52,7 +53,7 @@ npx trustless-work init
 
 ```bash
 # .env.local
-NEXT_PUBLIC_API_KEY=your_api_key_here
+TW_API_KEY=your_api_key_here
 ```
 
 > All API calls — including read-only indexer queries — require a valid API key. The deployed API returns `401 Unauthorized` without it.
@@ -95,9 +96,7 @@ npx trustless-work list
     <WalletProvider>
       <EscrowProvider>
         <EscrowDialogsProvider>
-          <EscrowAmountProvider>
-            {children}
-          </EscrowAmountProvider>
+          <EscrowAmountProvider>{children}</EscrowAmountProvider>
         </EscrowDialogsProvider>
       </EscrowProvider>
     </WalletProvider>
@@ -114,10 +113,11 @@ The Blocks SDK uses a Context API for global escrow state management.
 ### EscrowContext
 
 ```tsx
-import { useEscrowContext } from '@trustless-work/blocks';
+import { useEscrowContext } from "@trustless-work/blocks";
 
 function MyComponent() {
-  const { selectedEscrow, setSelectedEscrow, updateEscrow } = useEscrowContext();
+  const { selectedEscrow, setSelectedEscrow, updateEscrow } =
+    useEscrowContext();
 }
 ```
 

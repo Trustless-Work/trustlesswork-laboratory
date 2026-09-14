@@ -15,10 +15,10 @@ Single-release escrows release all funds in one payment after all milestones are
 
 All endpoints require these headers:
 
-| Name | Value |
-|------|-------|
+| Name           | Value              |
+| -------------- | ------------------ |
 | `Content-Type` | `application/json` |
-| `x-api-key` | `<your_api_key>` |
+| `x-api-key`    | `<your_api_key>`   |
 
 **Note:** Use `x-api-key` header (not `Authorization: Bearer`).
 
@@ -30,27 +30,27 @@ All endpoints require these headers:
 
 ```typescript
 interface SingleReleaseContract {
-  signer: string;                    // Entity that signs the transaction that deploys and initializes the escrow
-  engagementId: string;               // Unique identifier for the escrow
-  title: string;                      // Name of the escrow
-  description: string;                // Text describing the function of the escrow
+  signer: string; // Entity that signs the transaction that deploys and initializes the escrow
+  engagementId: string; // Unique identifier for the escrow
+  title: string; // Name of the escrow
+  description: string; // Text describing the function of the escrow
   roles: {
-    approver: string;                 // Address of the entity requiring the service
-    serviceProvider: string;           // Address of the entity providing the service
-    platformAddress: string;          // Address of the entity that owns the escrow
-    releaseSigner: string;            // Address of the user in charge of releasing the escrow funds to the service provider
-    disputeResolver: string;          // Address in charge of resolving disputes within the escrow
-    receiver: string;                 // Address where escrow proceeds will be sent to
+    approver: string; // Address of the entity requiring the service
+    serviceProvider: string; // Address of the entity providing the service
+    platformAddress: string; // Address of the entity that owns the escrow
+    releaseSigner: string; // Address of the user in charge of releasing the escrow funds to the service provider
+    disputeResolver: string; // Address in charge of resolving disputes within the escrow
+    receiver: string; // Address where escrow proceeds will be sent to
   };
-  amount: number;                     // Amount to be transferred upon completion of escrow milestones
-  platformFee: number;               // Commission that the platform will receive when the escrow is completed
+  amount: number; // Amount to be transferred upon completion of escrow milestones
+  platformFee: number; // Commission that the platform will receive when the escrow is completed
   milestones: {
-    description: string;               // Text describing the function of the milestone
+    description: string; // Text describing the function of the milestone
     // Note: Do NOT include "approvedFlag" or "status" when deploying
   }[];
   trustline: {
-    address: string;                  // Public address establishing permission to accept and use a specific token
-    symbol: string;                   // Official abbreviation representing the token (e.g., "USDC", "EURC")
+    address: string; // Public address establishing permission to accept and use a specific token
+    symbol: string; // Official abbreviation representing the token (e.g., "USDC", "EURC")
   };
 }
 ```
@@ -155,34 +155,31 @@ export const deployEscrow = async () => {
   const { address } = await kit.getAddress();
 
   // Execute the endpoint
-  const response = await http.post(
-    "/deployer/single-release",
-    {
-      signer: address,
-      engagementId: "project-123",
-      title: "Website Development",
-      description: "Build responsive website",
-      roles: {
-        approver: approverAddress,
-        serviceProvider: serviceProviderAddress,
-        platformAddress: platformAddress,
-        releaseSigner: releaseSignerAddress,
-        disputeResolver: disputeResolverAddress,
-        receiver: serviceProviderAddress,
-      },
-      amount: 5000,
-      platformFee: 100,
-      milestones: [
-        { description: "Design mockups" },
-        { description: "Frontend development" },
-        { description: "Backend integration" },
-      ],
-      trustline: {
-        address: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5", // testnet USDC issuer
-        symbol: "USDC",
-      },
-    }
-  );
+  const response = await http.post("/deployer/single-release", {
+    signer: address,
+    engagementId: "project-123",
+    title: "Website Development",
+    description: "Build responsive website",
+    roles: {
+      approver: approverAddress,
+      serviceProvider: serviceProviderAddress,
+      platformAddress: platformAddress,
+      releaseSigner: releaseSignerAddress,
+      disputeResolver: disputeResolverAddress,
+      receiver: serviceProviderAddress,
+    },
+    amount: 5000,
+    platformFee: 100,
+    milestones: [
+      { description: "Design mockups" },
+      { description: "Frontend development" },
+      { description: "Backend integration" },
+    ],
+    trustline: {
+      address: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5", // testnet USDC issuer
+      symbol: "USDC",
+    },
+  });
 
   // Get the unsigned transaction hash
   const { unsignedTransaction } = response.data;
@@ -213,9 +210,9 @@ Deposit funds into an existing escrow contract.
 
 ```typescript
 interface FundEscrow {
-  contractId: string;  // ID (address) that identifies the escrow contract
-  signer: string;      // Entity that signs the transaction that deploys and initializes the escrow
-  amount: number;      // Amount to transfer to the escrow contract
+  contractId: string; // ID (address) that identifies the escrow contract
+  signer: string; // Entity that signs the transaction that deploys and initializes the escrow
+  amount: number; // Amount to transfer to the escrow contract
 }
 ```
 
@@ -306,11 +303,11 @@ Service Provider updates the status and evidence of a milestone.
 
 ```typescript
 interface ChangeMilestoneStatus {
-  contractId: string;      // ID (address) that identifies the escrow contract
-  milestoneIndex: string;   // Position that identifies the milestone within the group of milestones in the escrow
-  newStatus: string;        // New value for the status property within the escrow milestone
-  newEvidence: string;      // New value for the evidence property within the escrow milestone
-  serviceProvider: string;  // Address of the entity providing the service
+  contractId: string; // ID (address) that identifies the escrow contract
+  milestoneIndex: string; // Position that identifies the milestone within the group of milestones in the escrow
+  newStatus: string; // New value for the status property within the escrow milestone
+  newEvidence: string; // New value for the evidence property within the escrow milestone
+  serviceProvider: string; // Address of the entity providing the service
 }
 ```
 
@@ -372,7 +369,7 @@ export const changeMilestoneStatus = async (
   contractId: string,
   milestoneIndex: string,
   newStatus: string,
-  newEvidence: string
+  newEvidence: string,
 ) => {
   const { address } = await kit.getAddress();
 
@@ -384,7 +381,7 @@ export const changeMilestoneStatus = async (
       newStatus,
       newEvidence,
       serviceProvider: address,
-    }
+    },
   );
 
   const { unsignedTransaction } = response.data;
@@ -412,9 +409,9 @@ Approver approves a milestone. In single-release, all milestones must be approve
 
 ```typescript
 interface ApproveMilestone {
-  contractId: string;      // ID (address) that identifies the escrow contract
-  milestoneIndex: string;  // Position that identifies the milestone within the group of milestones in the escrow
-  approver: string;        // Address of the entity requiring the service
+  contractId: string; // ID (address) that identifies the escrow contract
+  milestoneIndex: string; // Position that identifies the milestone within the group of milestones in the escrow
+  approver: string; // Address of the entity requiring the service
 }
 ```
 
@@ -472,18 +469,15 @@ const http = axios.create({
 
 export const approveMilestone = async (
   contractId: string,
-  milestoneIndex: string
+  milestoneIndex: string,
 ) => {
   const { address } = await kit.getAddress();
 
-  const response = await http.post(
-    "/escrow/single-release/approve-milestone",
-    {
-      contractId,
-      milestoneIndex,
-      approver: address,
-    }
-  );
+  const response = await http.post("/escrow/single-release/approve-milestone", {
+    contractId,
+    milestoneIndex,
+    approver: address,
+  });
 
   const { unsignedTransaction } = response.data;
 
@@ -510,8 +504,8 @@ Releases all funds after all milestones are approved.
 
 ```typescript
 interface ReleaseFunds {
-  contractId: string;      // ID (address) that identifies the escrow contract
-  releaseSigner: string;  // Address of the user in charge of releasing the escrow funds to the receiver
+  contractId: string; // ID (address) that identifies the escrow contract
+  releaseSigner: string; // Address of the user in charge of releasing the escrow funds to the receiver
 }
 ```
 
@@ -599,8 +593,8 @@ Any party can initiate a dispute for the entire escrow.
 
 ```typescript
 interface DisputeEscrow {
-  contractId: string;  // ID (address) that identifies the escrow contract
-  signer: string;      // Entity that signs the transaction that deploys and initializes the escrow
+  contractId: string; // ID (address) that identifies the escrow contract
+  signer: string; // Entity that signs the transaction that deploys and initializes the escrow
 }
 ```
 
@@ -655,13 +649,10 @@ const http = axios.create({
 export const disputeEscrow = async (contractId: string) => {
   const { address } = await kit.getAddress();
 
-  const response = await http.post(
-    "/escrow/single-release/dispute-escrow",
-    {
-      contractId,
-      signer: address,
-    }
-  );
+  const response = await http.post("/escrow/single-release/dispute-escrow", {
+    contractId,
+    signer: address,
+  });
 
   const { unsignedTransaction } = response.data;
 
@@ -688,9 +679,9 @@ Dispute Resolver decides how to distribute funds by providing distributions.
 
 ```typescript
 interface ResolveDispute {
-  contractId: string;        // ID (address) that identifies the escrow contract
-  disputeResolver: string;    // Address of the user defined to resolve disputes in an escrow
-  distributions: { address: string; amount: number }[];  // Distributions detailing address and amount to allocate. Must sum exactly to the current escrow balance (post-fees).
+  contractId: string; // ID (address) that identifies the escrow contract
+  disputeResolver: string; // Address of the user defined to resolve disputes in an escrow
+  distributions: { address: string; amount: number }[]; // Distributions detailing address and amount to allocate. Must sum exactly to the current escrow balance (post-fees).
 }
 ```
 
@@ -701,8 +692,8 @@ Distributions is an array of `{ address, amount }` objects (amounts are numbers)
 ```typescript
 distributions: [
   { address: "GDEF4567890123456789012345678901234567890", amount: 4000 },
-  { address: "GABC1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", amount: 900 }
-]
+  { address: "GABC1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", amount: 900 },
+];
 ```
 
 ### Required Fields
@@ -769,18 +760,15 @@ const http = axios.create({
 
 export const resolveDispute = async (
   contractId: string,
-  distributions: [string, string][]
+  distributions: [string, string][],
 ) => {
   const { address } = await kit.getAddress();
 
-  const response = await http.post(
-    "/escrow/single-release/resolve-dispute",
-    {
-      contractId,
-      disputeResolver: address,
-      distributions,
-    }
-  );
+  const response = await http.post("/escrow/single-release/resolve-dispute", {
+    contractId,
+    disputeResolver: address,
+    distributions,
+  });
 
   const { unsignedTransaction } = response.data;
 
@@ -812,8 +800,8 @@ Update escrow properties. **Only the platform address can execute this endpoint.
 
 ```typescript
 interface UpdateSingleReleaseEscrow {
-  signer: string;      // Entity that signs the transaction that deploys and initializes the escrow
-  contractId: string;  // ID (address) that identifies the escrow contract
+  signer: string; // Entity that signs the transaction that deploys and initializes the escrow
+  contractId: string; // ID (address) that identifies the escrow contract
   escrow: {
     engagementId: string;
     title: string;
@@ -830,18 +818,18 @@ interface UpdateSingleReleaseEscrow {
     platformFee: number;
     milestones: {
       description: string;
-      status?: string;      // Milestone status. Ex: Approved, In dispute, etc...
-      approved?: boolean;    // Flag indicating whether a milestone has been approved by the approver
+      status?: string; // Milestone status. Ex: Approved, In dispute, etc...
+      approved?: boolean; // Flag indicating whether a milestone has been approved by the approver
     }[];
     flags?: {
-      disputed?: boolean;   // Flag indicating that an escrow is in dispute
-      released?: boolean;    // Flag indicating that escrow funds have already been released
-      resolved?: boolean;    // Flag indicating that a disputed escrow has already been resolved
+      disputed?: boolean; // Flag indicating that an escrow is in dispute
+      released?: boolean; // Flag indicating that escrow funds have already been released
+      resolved?: boolean; // Flag indicating that a disputed escrow has already been resolved
     };
-    isActive?: boolean;      // Flag indicating whether the escrow is active or not at the database level
-    receiverMemo?: number;   // Field used to identify the recipient's address in transactions through an intermediary account
+    isActive?: boolean; // Flag indicating whether the escrow is active or not at the database level
+    receiverMemo?: number; // Field used to identify the recipient's address in transactions through an intermediary account
     trustline: {
-      address: string;       // Public address establishing permission to accept and use a specific token
+      address: string; // Public address establishing permission to accept and use a specific token
     };
   };
 }
@@ -954,18 +942,15 @@ const http = axios.create({
 
 export const updateEscrow = async (
   contractId: string,
-  escrowData: UpdateEscrowData
+  escrowData: UpdateEscrowData,
 ) => {
   const { address } = await kit.getAddress();
 
-  const response = await http.put(
-    "/escrow/single-release/update-escrow",
-    {
-      signer: address,
-      contractId,
-      escrow: escrowData,
-    }
-  );
+  const response = await http.put("/escrow/single-release/update-escrow", {
+    signer: address,
+    contractId,
+    escrow: escrowData,
+  });
 
   const { unsignedTransaction } = response.data;
 
@@ -992,7 +977,7 @@ const http = axios.create({
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
-    "x-api-key": process.env.NEXT_PUBLIC_API_KEY,
+    "x-api-key": process.env.TW_API_KEY,
   },
 });
 
@@ -1066,7 +1051,7 @@ async function singleReleaseWorkflow() {
         newStatus: "Completed",
         newEvidence: `https://example.com/milestone-${i}-proof.pdf`,
         serviceProvider: serviceProviderAddress,
-      }
+      },
     );
 
     const { unsignedTransaction: completeXdr } = completeResponse.data;
@@ -1075,7 +1060,7 @@ async function singleReleaseWorkflow() {
       {
         address: serviceProviderAddress,
         networkPassphrase: WalletNetwork.TESTNET,
-      }
+      },
     );
 
     await http.post("/helper/send-transaction", {
@@ -1091,7 +1076,7 @@ async function singleReleaseWorkflow() {
         contractId,
         milestoneIndex: i.toString(),
         approver: approverAddress,
-      }
+      },
     );
 
     const { unsignedTransaction: approveXdr } = approveResponse.data;
@@ -1100,7 +1085,7 @@ async function singleReleaseWorkflow() {
       {
         address: approverAddress,
         networkPassphrase: WalletNetwork.TESTNET,
-      }
+      },
     );
 
     await http.post("/helper/send-transaction", {
@@ -1114,7 +1099,7 @@ async function singleReleaseWorkflow() {
     {
       contractId,
       releaseSigner: releaseSignerAddress,
-    }
+    },
   );
 
   const { unsignedTransaction: releaseXdr } = releaseResponse.data;
@@ -1141,7 +1126,7 @@ const response = await http.get(
     headers: {
       "x-api-key": your_api_key,
     },
-  }
+  },
 );
 
 const escrows = await response.data;

@@ -42,6 +42,7 @@ npx trustless-work init
 ```
 
 **What it does:**
+
 - Installs deps (`@tanstack/react-query`, forms/validation libs, shadcn/ui).
 - Generates `.twblocks.json`.
 - Offers to **wire providers** in `app/layout.tsx` for you.
@@ -53,7 +54,7 @@ npx trustless-work init
 Create `.env.local` (reads can work without a key; write flows need it):
 
 ```bash
-NEXT_PUBLIC_API_KEY=your_api_key_here
+TW_API_KEY=your_api_key_here
 ```
 
 > Get your API key at https://dapp.trustlesswork.com → Settings → API Keys. Fill in name, email, and use case first.
@@ -72,7 +73,11 @@ import { EscrowProvider } from "@/components/tw-blocks/providers/EscrowProvider"
 import { EscrowDialogsProvider } from "@/components/tw-blocks/providers/EscrowDialogsProvider";
 import { EscrowAmountProvider } from "@/components/tw-blocks/providers/EscrowAmountProvider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
@@ -81,9 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <WalletProvider>
               <EscrowProvider>
                 <EscrowDialogsProvider>
-                  <EscrowAmountProvider>
-                    {children}
-                  </EscrowAmountProvider>
+                  <EscrowAmountProvider>{children}</EscrowAmountProvider>
                 </EscrowDialogsProvider>
               </EscrowProvider>
             </WalletProvider>
@@ -192,9 +195,11 @@ import { ReleaseEscrowButton } from "../../single-release/release-escrow/button/
 ## Dependency Rules (Practical)
 
 **Listings (by role / by signer)** need:
+
 - `wallet-kit`, `providers`, `tanstack`, `helpers`, `handle-errors`, **plus** lifecycle blocks for the actions you'll expose.
 
 **Single-release or Multi-release actions** need:
+
 - `wallet-kit`, `providers`, `tanstack`, `helpers` (+ `handle-errors`), **and** the corresponding block set(s).
 
 **Provider order** must match the provider stack section above.
@@ -215,7 +220,7 @@ import { ReleaseEscrowButton } from "../../single-release/release-escrow/button/
 - **Hooks failing / context error:** Provider order is wrong. Compare with the canonical order here.
 - **Client vs server error:** Add `"use client"` to pages/components that consume hooks.
 - **Asset errors:** Ensure the **USDC trustline** is added in Freighter for the correct network.
-- **Read-only works; writes fail:** Missing or invalid `NEXT_PUBLIC_API_KEY`, wrong role, or wallet not on the right network.
+- **Read-only works; writes fail:** Missing or invalid `TW_API_KEY`, wrong role, or wallet not on the right network.
 
 ## Minimal "Blocks Gallery" Pattern (Optional)
 
@@ -287,9 +292,7 @@ Propose exact code edits.
     <WalletProvider>
       <EscrowProvider>
         <EscrowDialogsProvider>
-          <EscrowAmountProvider>
-            {children}
-          </EscrowAmountProvider>
+          <EscrowAmountProvider>{children}</EscrowAmountProvider>
         </EscrowDialogsProvider>
       </EscrowProvider>
     </WalletProvider>
