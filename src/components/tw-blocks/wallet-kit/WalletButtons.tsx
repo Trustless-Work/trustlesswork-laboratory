@@ -1,8 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Wallet } from "lucide-react";
+import { LogOut, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWallet } from "./useWallet";
 import { useAuth } from "@/providers/AuthProvider";
@@ -36,7 +43,7 @@ export const WalletButton = ({
   className,
   mobileBar = false,
 }: WalletButtonProps) => {
-  const { handleConnect } = useWallet();
+  const { handleConnect, handleDisconnect } = useWallet();
   const { walletAddress, walletName, hasWalletHydrated } = useWalletContext();
   const { isLoading: isSessionLoading } = useAuth();
 
@@ -52,22 +59,40 @@ export const WalletButton = ({
 
   if (walletAddress) {
     return (
-      <Button
-        variant="outline"
-        type="button"
-        tabIndex={-1}
-        className={cn(
-          "h-10 min-w-0 gap-2 bg-transparent font-medium pointer-events-none",
-          mobileBar ? "w-full justify-center px-2" : "px-4",
-          className,
-        )}
-      >
-        <Wallet className="size-4 shrink-0" />
-        {!mobileBar ? <span className="font-medium">{walletName}</span> : null}
-        <span className="truncate font-mono text-sm text-muted-foreground">
-          {shortAddress}
-        </span>
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            type="button"
+            className={cn(
+              "h-10 min-w-0 gap-2 bg-transparent font-medium",
+              mobileBar ? "w-full justify-center px-2" : "px-4",
+              className,
+            )}
+          >
+            <Wallet data-icon="inline-start" />
+            {!mobileBar ? (
+              <span className="font-medium">{walletName}</span>
+            ) : null}
+            <span className="truncate font-mono text-sm text-muted-foreground">
+              {shortAddress}
+            </span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => {
+                void handleDisconnect();
+              }}
+            >
+              <LogOut />
+              Disconnect
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
@@ -80,7 +105,7 @@ export const WalletButton = ({
       )}
       onClick={handleConnect}
     >
-      <Wallet className="size-4 shrink-0" />
+      <Wallet data-icon="inline-start" />
       {mobileBar ? "Connect" : "Connect Wallet"}
     </Button>
   );
