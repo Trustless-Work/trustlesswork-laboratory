@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "trustless-work-dev": {
+      "source": "trustless-work/trustlesswork-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "bcb6089932f9ec5adcacd82691855b42acb78068783fcfa2b0947c5278062f17"
+    },
+    "typescript-advanced-types": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
+      "computedHash": "8cbf2bf600f392d7260e476e3202932a876e2281cda3b15a8b6a5a43f383252d"
+    }
+  }
+}
