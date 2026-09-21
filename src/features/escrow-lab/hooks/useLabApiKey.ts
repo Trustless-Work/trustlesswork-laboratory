@@ -1,29 +1,48 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import {
   clearLabApiKey,
   getLabApiKey,
   setLabApiKey,
 } from "@/features/escrow-lab/lib/lab-api-key";
+import { useHydrated } from "@/hooks/useHydrated";
+
+const listeners = new Set<() => void>();
+
+function emit(): void {
+  for (const listener of listeners) {
+    listener();
+  }
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getServerSnapshot(): string | null {
+  return null;
+}
 
 export function useLabApiKey() {
-  const [apiKey, setApiKeyState] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setApiKeyState(getLabApiKey());
-    setHydrated(true);
-  }, []);
+  const apiKey = useSyncExternalStore(
+    subscribe,
+    getLabApiKey,
+    getServerSnapshot,
+  );
+  const hydrated = useHydrated();
 
   const save = useCallback((value: string) => {
     setLabApiKey(value);
-    setApiKeyState(getLabApiKey());
+    emit();
   }, []);
 
   const clear = useCallback(() => {
     clearLabApiKey();
-    setApiKeyState(null);
+    emit();
   }, []);
 
   return {

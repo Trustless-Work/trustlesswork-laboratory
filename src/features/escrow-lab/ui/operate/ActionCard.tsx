@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,10 +41,6 @@ export const ActionCard = ({
   const disabled = blocked || loading;
   const contentId = `action-${action}-content`;
   const expanded = open && !blocked;
-
-  useEffect(() => {
-    if (blocked) setOpen(false);
-  }, [blocked]);
 
   const toggle = () => {
     if (blocked) return;
