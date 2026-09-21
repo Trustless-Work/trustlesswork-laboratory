@@ -1,12 +1,12 @@
 <p align="center"> <img src="https://github.com/user-attachments/assets/5b182044-dceb-41f5-acf0-da22dea7c98a" alt="CLR-S (2)"> </p>
 
-# Trustless Work _DEMO_ | [API Documentation](https://docs.trustlesswork.com/trustless-work)
+# Trustless Work | [API Documentation](https://docs.trustlesswork.com/trustless-work)
 
-A minimal dApp example to demonstrate how to interact with the Trustless Work API, deploy escrows, and submit signed transactions to the Stellar network.
+The Trustless Work Backoffice is an internal admin console for fully managing the Trustless Work ecosystem. It allows teams to request and manage API keys, operate and monitor escrow lifecycles, handle milestones, releases, and disputes, and manage contacts and other operational features — all within a secure, auditable environment.
 
 ---
 
-![image](https://github.com/user-attachments/assets/fddb264f-512e-4402-ae05-7b7717fc29b1)
+![image](https://github.com/user-attachments/assets/d0cdab67-637c-4277-8297-55ebc19a6455)
 
 ---
 
@@ -52,77 +52,6 @@ A minimal dApp example to demonstrate how to interact with the Trustless Work AP
     </td>
   </tr>
 </table>
-
----
-
-## Getting Started
-
-Follow the steps below to get started with this project:
-
-## Summary
-
-1. Install dependencies.
-2. Format code.
-3. Set enviroment variables.
-4. Run the project!
-
-## Steps
-
-1. Fork the repo.
-2. Clone the repo locally.
-3. Execute `npm i`.
-4. Setup .env according to the information below.
-   1. et the API Key from the htpps://dapp.dev.trustlesswork.com -> https://docs.trustlesswork.com/trustless-work/developer-resources/authentication/request-api-key
-5. Run the project.
-
-## Installation
-
-1. Install dependencies:
-
-   ```bash
-   npm i
-   ```
-
-2. Format the code using Prettier: (This is for avoid eslint errors)
-
-   ```bash
-   npx prettier --write .
-   ```
-
-3. Start the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-## Environment Variables
-
-Make sure to set up the following environment variable in your `.env` file:
-
-```
-
-# TRUSTLESS WORK -> See API KEY Video
-NEXT_PUBLIC_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3YWxsZXQiOiJHRE42SUpMUzVCUjNXN1FCM1NBRTNNWU5CRzZINFpXRFVHWURNRVVRWEU2RjJRSFhXSFlNNU1MWCIsImlhdCI6MTc0NTcwMzQzM30.M1gr85EXzUl7JRZ82yOORtVTGmGRL_DxN2C2Cl486lY
-
-
-```
-
-## Wallet Requirements
-
-To use this project, you must have one of the following wallets installed:
-
-- **Freighter**
-
-These wallets are required to interact with the platform.
-
-### How to use a Wallet
-
-You should use Chrome, Brave or Firefox browser, please install any of the wallets that were listen before.
-Important Note: If you're having problems to use Freighter, make sure that you have the wallet in "test net", and also if even you couldn't be able to use because it shows you "Not Available". Try going to: Security > Manage Connected Wallet > Remove the "localhost". If the problem persist, please contact us. This mistake happens for the wallet, not our product.
-
-## IMPORTANT NOTE:
-
-_It's important to note that we are using Husky. This means that when you run a `git push`, Husky will automatically execute `npm run format and npm run lint`. If either of these commands throws an error, the push will not be successful, and you will see a Husky error. When this happens, make sure to resolve any format and lint errors before trying the push again._
 
 ---
 

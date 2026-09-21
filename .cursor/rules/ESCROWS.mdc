@@ -1,0 +1,57 @@
+---
+description: Patrones escrow — ActionsProvider, SDK scope, forms con schema, indexer reads
+globs: "src/features/escrows/**/*.{ts,tsx},src/app/dashboard/escrows/**/*.{ts,tsx},src/providers/TrustlessWorkProvider.tsx"
+alwaysApply: false
+---
+
+# Escrows
+
+## Acciones on-chain
+
+- **Un** `useEscrowActions` por contrato vía `EscrowActionsProvider`
+- Actions UI usan `useEscrowActionsContext()` — **nunca** llamar `useEscrowActions(contractId, type)` en cada botón/menú
+
+```tsx
+// ❌ BAD — N instancias del SDK hook set
+const { fund } = useEscrowActions(escrow.contractId, escrow.type);
+
+// ✅ GOOD
+<EscrowActionsProvider contractId={...} escrowType={...}>
+  <FundEscrowAction /> // useEscrowActionsContext()
+</EscrowActionsProvider>
+```
+
+## Trustless Work SDK
+
+- Provider solo bajo `src/app/dashboard/escrows/layout.tsx` (o equivalente)
+- No envolver toda la app
+- Mutate y reads en el dApp: **solo REST** (`useEscrowRest`, `useDeployEscrow`, fund, …, `useSendTransaction`)
+- GraphQL queda **solo en el SDK** — el dApp no importa `useEscrowGraphql` ni tipos `Graphql*`
+- Cache de lecturas: `escrow-read.service` + TanStack Query (no hooks del SDK como cache)
+
+## Lecturas / cache
+
+- Fuente de verdad: Core REST (`listEscrows`, `getEscrow`)
+- Lista: `useEscrowsInfinite` + `escrowsListQueryKey(filters)` — filtros **en** el queryKey
+- Detalle: `useEscrowDetail` → `escrowDetailQueryKey(contractId)` — `getEscrow` ya trae events + deposits; **no** llamar `/financial` ni `/events`
+- Tras mutate: `invalidateQueries` de list / detail — **no** localStorage
+
+## Filtros (URL)
+
+- Todos los filtros de lista viven en search params (`useEscrowListSearchParams`)
+- Mapper único: `toRestListParams`
+- Debounce en campos de texto; `router.replace` + `scroll: false`
+
+## Forms de acciones
+
+Acciones con campos (fund, withdraw, update, dispute, status, resolve):
+
+1. Schema en `schemas/escrow-action.schemas.ts` (o schema dedicado)
+2. Hook en `hooks/useEscrowActionForms.ts` (o hook dedicado)
+3. UI thin con RHF — **no** `useState` + `Number()` manual
+
+Confirm-only actions (approve, release) pueden quedarse en dialog + `useState(open)`.
+
+## Hooks grandes
+
+`useCreateEscrowForm` = orquestación RHF/submit. Defaults, migrate, payload → `utils/create-escrow-*.helper.ts`. No volver a un god-hook >300 líneas.

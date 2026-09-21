@@ -1,9 +1,11 @@
+"use client";
+
 import {
   openAuthModal,
   disconnectWalletKit,
   getSelectedWallet,
 } from "./wallet-kit";
-import { useWalletContext } from "./WalletProvider";
+import { useWalletContext } from "@/providers/WalletProvider";
 
 /**
  * Custom hook that provides wallet connection and disconnection functionality
@@ -11,22 +13,19 @@ import { useWalletContext } from "./WalletProvider";
  */
 export const useWallet = () => {
   // Get wallet management functions from the context
-  const { setWalletInfo, clearWalletInfo } = useWalletContext();
+  const { setWalletInfo, clearWalletInfo, walletAddress } = useWalletContext();
+  const isConnected = !!walletAddress;
 
   /**
    * Connect to a Stellar wallet using the Wallet Kit
    * Opens a modal for wallet selection and handles the connection process
    * Automatically sets wallet information in the context upon successful connection
    */
-  const connectWallet = async () => {
-    // Open the auth modal and wait for the user to connect
+  const connectWallet = async (): Promise<string> => {
     const { address } = await openAuthModal();
-
-    // Get the selected wallet details (name)
     const { productName } = await getSelectedWallet();
-
-    // Store wallet information in the context and localStorage
     setWalletInfo(address, productName);
+    return address;
   };
 
   /**
@@ -80,5 +79,6 @@ export const useWallet = () => {
     disconnectWallet,
     handleConnect,
     handleDisconnect,
+    isConnected,
   };
 };

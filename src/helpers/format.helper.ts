@@ -1,4 +1,18 @@
-export const formatAddress = (address: string) => {
-  if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-6)}`;
-};
+export function isUsdcSymbol(symbol: string): boolean {
+  return symbol.trim().toUpperCase() === "USDC";
+}
+
+export function isUsdtSymbol(symbol: string): boolean {
+  return symbol.trim().toUpperCase() === "USDT";
+}
+
+export function formatAssetAmount(
+  amount: number,
+  decimals = 2,
+): string {
+  if (!Number.isFinite(amount)) return "0";
+  return amount.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
