@@ -1,10 +1,11 @@
 "use client";
 
-import { useWalletBalance } from "./useWalletBalance";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
+import { UsdcAmount } from "@/components/shared/UsdcAmount";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useWalletContext } from "@/providers/WalletProvider";
+import { useWalletBalance } from "./useWalletBalance";
 
 export const WalletBalance = () => {
   const { walletAddress } = useWalletContext();
@@ -14,19 +15,16 @@ export const WalletBalance = () => {
     return null;
   }
 
+  const amount = Number(balance);
+  const parsedAmount = Number.isFinite(amount) ? amount : 0;
+
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium">
-        USDC{" "}
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin inline" />
-        ) : (
-          parseFloat(balance).toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        )}
-      </span>
+      {isLoading ? (
+        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+      ) : (
+        <UsdcAmount amount={parsedAmount} symbol="USDC" size="sm" />
+      )}
       <Button
         variant="ghost"
         size="sm"

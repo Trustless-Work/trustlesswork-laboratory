@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWallet } from "./useWallet";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWalletContext } from "@/providers/WalletProvider";
+import { useHydrated } from "@/hooks/useHydrated";
 import { cn } from "@/lib/utils";
 
 type WalletButtonProps = {
@@ -25,10 +26,13 @@ const WalletButtonSkeleton = ({
   className,
   mobileBar = false,
 }: WalletButtonProps) => (
-  <div
+  <Button
+    type="button"
+    variant="outline"
+    disabled
     aria-hidden="true"
     className={cn(
-      "flex h-10 min-w-0 items-center gap-2 rounded-md border border-input bg-transparent",
+      "pointer-events-none min-w-0 gap-2 bg-transparent opacity-100",
       mobileBar ? "w-full justify-center px-2" : "px-4",
       className,
     )}
@@ -36,7 +40,7 @@ const WalletButtonSkeleton = ({
     <Skeleton className="size-4 shrink-0 rounded" />
     {!mobileBar ? <Skeleton className="h-4 w-14 shrink-0" /> : null}
     <Skeleton className="h-4 w-24 shrink-0" />
-  </div>
+  </Button>
 );
 
 export const WalletButton = ({
@@ -46,6 +50,7 @@ export const WalletButton = ({
   const { handleConnect, handleDisconnect } = useWallet();
   const { walletAddress, walletName, hasWalletHydrated } = useWalletContext();
   const { isLoading: isSessionLoading } = useAuth();
+  const hydrated = useHydrated();
 
   const shortAddress = React.useMemo(() => {
     if (!walletAddress) return "";
@@ -53,7 +58,7 @@ export const WalletButton = ({
     return `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`;
   }, [walletAddress]);
 
-  if (!hasWalletHydrated || isSessionLoading) {
+  if (!hydrated || !hasWalletHydrated || isSessionLoading) {
     return <WalletButtonSkeleton className={className} mobileBar={mobileBar} />;
   }
 
@@ -65,7 +70,7 @@ export const WalletButton = ({
             variant="outline"
             type="button"
             className={cn(
-              "h-10 min-w-0 gap-2 bg-transparent font-medium",
+              "min-w-0 gap-2 bg-transparent font-medium",
               mobileBar ? "w-full justify-center px-2" : "px-4",
               className,
             )}
@@ -99,7 +104,7 @@ export const WalletButton = ({
   return (
     <Button
       className={cn(
-        "h-10 gap-2 font-medium cursor-pointer",
+        "gap-2 font-medium",
         mobileBar ? "w-full justify-center px-3" : "px-6",
         className,
       )}

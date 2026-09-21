@@ -295,12 +295,19 @@ These are the V2 rules that most often reshape product UX (and that the lab make
 
 ---
 
+## Out of scope — CCTP cross-chain destination
+
+V2 contracts may expose `set_cross_chain_destination` / `clear_cross_chain_destination` / `get_cross_chain_destination` for CCTP flows. Those are **direct Soroban contract calls**: there is no Core API v2 REST route and no `@trustless-work/escrow-js` method. Escrow Lab does **not** surface them — use a Soroban client if you need that path.
+
+---
+
 ## What this lab is not
 
 - Not an end-user payments product.
 - Not official API documentation (see [docs.trustlesswork.com](https://docs.trustlesswork.com/trustless-work) / V2 section).
 - Not a V1 guide — singular roles, `flags`, and V1 dispute/withdraw rules do not apply here.
 - Not mainnet-ready while V2 remains beta.
+- Not a CCTP / cross-chain destination UI (see above).
 
 ---
 

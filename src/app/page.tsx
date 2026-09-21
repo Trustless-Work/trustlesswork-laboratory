@@ -1,11 +1,38 @@
-import { WalletButton } from "@/components/tw-blocks/wallet-kit/WalletButtons";
+import { siteConfig } from "@/app/site-config";
+import { EscrowLabView } from "@/features/escrow-lab/views/EscrowLabView";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: siteConfig.name,
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Web",
+  url: siteConfig.url,
+  description: siteConfig.description,
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  creator: {
+    "@type": "Organization",
+    name: siteConfig.creator,
+    url: "https://trustlesswork.com",
+  },
+  about: {
+    "@type": "Thing",
+    name: "Trustless Work V2 Escrows on Stellar",
+  },
+};
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <WalletButton />
-      </main>
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <EscrowLabView />
+    </>
   );
 }

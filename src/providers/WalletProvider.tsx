@@ -2,9 +2,10 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useState,
-  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -21,39 +22,30 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 const WALLET_ADDRESS_KEY = "walletAddress";
 const WALLET_NAME_KEY = "walletName";
 
-function subscribeToNothing() {
-  return () => {};
-}
-
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
-  const hasWalletHydrated = useSyncExternalStore(
-    subscribeToNothing,
-    () => true,
-    () => false,
-  );
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [walletName, setWalletName] = useState<string | null>(null);
-  const [didReadStorage, setDidReadStorage] = useState(false);
+  const [hasWalletHydrated, setHasWalletHydrated] = useState(false);
 
-  if (hasWalletHydrated && !didReadStorage) {
+  useEffect(() => {
     setWalletAddress(localStorage.getItem(WALLET_ADDRESS_KEY));
     setWalletName(localStorage.getItem(WALLET_NAME_KEY));
-    setDidReadStorage(true);
-  }
+    setHasWalletHydrated(true);
+  }, []);
 
-  const setWalletInfo = (address: string, name: string) => {
+  const setWalletInfo = useCallback((address: string, name: string) => {
     setWalletAddress(address);
     setWalletName(name);
     localStorage.setItem(WALLET_ADDRESS_KEY, address);
     localStorage.setItem(WALLET_NAME_KEY, name);
-  };
+  }, []);
 
-  const clearWalletInfo = () => {
+  const clearWalletInfo = useCallback(() => {
     setWalletAddress(null);
     setWalletName(null);
     localStorage.removeItem(WALLET_ADDRESS_KEY);
     localStorage.removeItem(WALLET_NAME_KEY);
-  };
+  }, []);
 
   return (
     <WalletContext.Provider
