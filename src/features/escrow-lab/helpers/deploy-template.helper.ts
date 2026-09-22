@@ -1,12 +1,12 @@
-import { trustlines } from "@/components/tw-blocks/wallet-kit/trustlines";
+import { trustlineOptions } from "@/components/tw-blocks/wallet-kit/trustlines";
 import type { z } from "zod";
 import type {
-  deployMultiSchema,
-  deploySingleSchema,
+  deployMultiFormSchema,
+  deploySingleFormSchema,
 } from "@/features/escrow-lab/schemas/operate.schema";
 
-export type DeploySingleValues = z.infer<typeof deploySingleSchema>;
-export type DeployMultiValues = z.infer<typeof deployMultiSchema>;
+export type DeploySingleValues = z.infer<typeof deploySingleFormSchema>;
+export type DeployMultiValues = z.infer<typeof deployMultiFormSchema>;
 
 /**
  * Known public Stellar addresses used only as lab placeholders.
@@ -24,9 +24,10 @@ function engagementId(wallet: string): string {
 }
 
 function trustlineDefaults() {
+  const first = trustlineOptions[0];
   return {
-    contractId: trustlines[0]?.address ?? "",
-    symbol: trustlines[0]?.symbol ?? "USDC",
+    address: first?.value ?? "",
+    symbol: first?.label ?? "USDC",
   };
 }
 
@@ -54,6 +55,7 @@ export function buildSingleDeployTemplate(wallet: string): DeploySingleValues {
       { description: "Production launch", approvalsTarget: 1 },
     ],
     trustline: trustlineDefaults(),
+    trustlineIsCustom: false,
   };
 }
 
@@ -89,5 +91,6 @@ export function buildMultiDeployTemplate(wallet: string): DeployMultiValues {
       },
     ],
     trustline: trustlineDefaults(),
+    trustlineIsCustom: false,
   };
 }

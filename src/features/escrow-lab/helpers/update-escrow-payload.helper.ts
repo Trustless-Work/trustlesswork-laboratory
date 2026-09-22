@@ -1,4 +1,5 @@
 import type { EscrowSummary } from "@/types";
+import { trustlineOptions } from "@/components/tw-blocks/wallet-kit/trustlines";
 import { parseAmount } from "@/features/escrow-lab/helpers/amount.helper";
 import { getMilestones } from "@/features/escrow-lab/helpers/lifecycle.helper";
 
@@ -47,18 +48,47 @@ export function toAddressArray(value: unknown, minCount = 1): string[] {
   ];
 }
 
+const SOROBAN_CONTRACT_ID = /^C[A-Z2-7]{55}$/;
+
+function readTrustlineString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/**
+ * SAC contract id shown in the form.
+ * Snapshots may store it as `contractId` (deploy wire) or `address`.
+ * Issuer `G…` addresses are ignored when a contract id is present.
+ */
 export function resolveTrustlineAddress(trustline: Record<string, unknown>): string {
-  if (typeof trustline.address === "string" && trustline.address.trim()) {
-    return trustline.address.trim();
-  }
-  if (typeof trustline.contractId === "string" && trustline.contractId.trim()) {
-    return trustline.contractId.trim();
-  }
-  return "";
+  const contractId = readTrustlineString(trustline.contractId);
+  const address = readTrustlineString(trustline.address);
+  if (SOROBAN_CONTRACT_ID.test(contractId)) return contractId;
+  if (SOROBAN_CONTRACT_ID.test(address)) return address;
+  return contractId || address;
 }
 
 export function resolveTrustlineSymbol(trustline: Record<string, unknown>): string {
-  return typeof trustline.symbol === "string" ? trustline.symbol.trim() : "";
+  return readTrustlineString(trustline.symbol);
+}
+
+/**
+ * Deploy and update both send the SAC as `contractId` + `symbol`.
+ * `isCustom` stays in the form. The issuer `address` (G…) is not part of this payload.
+ */
+export function toTrustlinePayload(fields: {
+  address: string;
+  symbol: string;
+}): { contractId: string; symbol: string } {
+  return {
+    contractId: fields.address.trim(),
+    symbol: fields.symbol.trim(),
+  };
+}
+
+export function isPresetTrustlineAddress(address: string): boolean {
+  const trimmed = address.trim();
+  if (!trimmed) return false;
+  return trustlineOptions.some((option) => option.value === trimmed);
 }
 
 export interface UpdateEscrowRolesPatch {
@@ -115,15 +145,11 @@ export function buildUpdateEscrowPayload(
   }
 
   const trustline = patch.trustline
-    ? {
-        address: patch.trustline.address.trim(),
-        symbol: patch.trustline.symbol.trim(),
-      }
-    : {
+    ? toTrustlinePayload(patch.trustline)
+    : toTrustlinePayload({
         address: resolveTrustlineAddress(storedTrustline),
         symbol: resolveTrustlineSymbol(storedTrustline),
-        ...storedTrustline,
-      };
+      });
 
   const base: Record<string, unknown> = {
     engagementId:

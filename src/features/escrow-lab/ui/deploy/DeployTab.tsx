@@ -5,8 +5,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
-  deployMultiSchema,
-  deploySingleSchema,
+  deployMultiFormSchema,
+  deploySingleFormSchema,
 } from "@/features/escrow-lab/schemas/operate.schema";
 import {
   buildMultiDeployTemplate,
@@ -15,6 +15,7 @@ import {
 import {
   buildMultiDeployDefaults,
   buildSingleDeployDefaults,
+  stripDeployFormUiFields,
   type DeployMultiDefaults,
   type DeploySingleDefaults,
 } from "@/features/escrow-lab/helpers/deploy-defaults.helper";
@@ -39,7 +40,7 @@ const DeploySingleForm = () => {
   const { loadEscrow } = useActiveEscrow();
 
   const form = useForm<DeploySingleDefaults>({
-    resolver: zodResolver(deploySingleSchema),
+    resolver: zodResolver(deploySingleFormSchema),
     defaultValues: buildSingleDeployDefaults(""),
     mode: "onChange",
   });
@@ -57,10 +58,11 @@ const DeploySingleForm = () => {
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
+    const payload = stripDeployFormUiFields(values);
     const result = await write.mutateAsync({
       type: "single-release",
       action: "deploy",
-      payload: { ...values, signer: walletAddress ?? values.signer },
+      payload: { ...payload, signer: walletAddress ?? payload.signer },
     });
     if (result.contractId) loadEscrow(result.contractId);
   });
@@ -90,17 +92,18 @@ const DeploySingleForm = () => {
           "description",
           "amount",
           "platformFee",
-          "trustline.contractId",
+          "trustline.address",
+          "trustline.symbol",
         ],
         [
           "roles.admin",
           "roles.platform",
           "roles.receiver",
-          "roles.approvers.0",
-          "roles.serviceProviders.0",
-          "roles.releaseSigners.0",
-          "roles.disputeResolvers.0",
-          "roles.observers.0",
+          "roles.approvers",
+          "roles.serviceProviders",
+          "roles.releaseSigners",
+          "roles.disputeResolvers",
+          "roles.observers",
         ],
         ["milestones"],
       ]}
@@ -114,7 +117,7 @@ const DeployMultiForm = () => {
   const { loadEscrow } = useActiveEscrow();
 
   const form = useForm<DeployMultiDefaults>({
-    resolver: zodResolver(deployMultiSchema),
+    resolver: zodResolver(deployMultiFormSchema),
     defaultValues: buildMultiDeployDefaults(""),
     mode: "onChange",
   });
@@ -132,10 +135,11 @@ const DeployMultiForm = () => {
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
+    const payload = stripDeployFormUiFields(values);
     const result = await write.mutateAsync({
       type: "multi-release",
       action: "deploy",
-      payload: { ...values, signer: walletAddress ?? values.signer },
+      payload: { ...payload, signer: walletAddress ?? payload.signer },
     });
     if (result.contractId) loadEscrow(result.contractId);
   });
@@ -164,16 +168,17 @@ const DeployMultiForm = () => {
           "title",
           "description",
           "platformFee",
-          "trustline.contractId",
+          "trustline.address",
+          "trustline.symbol",
         ],
         [
           "roles.admin",
           "roles.platform",
-          "roles.approvers.0",
-          "roles.serviceProviders.0",
-          "roles.releaseSigners.0",
-          "roles.disputeResolvers.0",
-          "roles.observers.0",
+          "roles.approvers",
+          "roles.serviceProviders",
+          "roles.releaseSigners",
+          "roles.disputeResolvers",
+          "roles.observers",
         ],
         ["milestones"],
       ]}

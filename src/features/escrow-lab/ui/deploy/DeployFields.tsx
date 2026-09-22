@@ -1,6 +1,6 @@
 "use client";
 
-import type { FieldValues, UseFormReturn } from "react-hook-form";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -10,16 +10,37 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { trustlines } from "@/components/tw-blocks/wallet-kit/trustlines";
 import { formatRoleLabel } from "@/features/escrow-lab/helpers/role.helper";
+import { EscrowRoleAddressList } from "@/features/escrow-lab/ui/operate/EscrowRoleAddressList";
+import { EscrowTrustlineField } from "@/features/escrow-lab/ui/operate/EscrowTrustlineField";
+
+const ROLE_LIST_FIELDS = [
+  {
+    key: "approvers",
+    minCount: 1,
+    required: true,
+  },
+  {
+    key: "serviceProviders",
+    minCount: 1,
+    required: true,
+  },
+  {
+    key: "releaseSigners",
+    minCount: 1,
+    required: true,
+  },
+  {
+    key: "disputeResolvers",
+    minCount: 1,
+    required: true,
+  },
+  {
+    key: "observers",
+    minCount: 0,
+    required: false,
+  },
+] as const;
 
 export const IdentityFields = <T extends FieldValues>({
   form,
@@ -29,7 +50,7 @@ export const IdentityFields = <T extends FieldValues>({
   <>
     <FormField
       control={form.control}
-      name={"engagementId" as never}
+      name={"engagementId" as Path<T>}
       render={({ field }) => (
         <FormItem>
           <FormLabel required>Engagement ID</FormLabel>
@@ -48,7 +69,7 @@ export const IdentityFields = <T extends FieldValues>({
     />
     <FormField
       control={form.control}
-      name={"title" as never}
+      name={"title" as Path<T>}
       render={({ field }) => (
         <FormItem>
           <FormLabel required>Title</FormLabel>
@@ -65,7 +86,7 @@ export const IdentityFields = <T extends FieldValues>({
     />
     <FormField
       control={form.control}
-      name={"description" as never}
+      name={"description" as Path<T>}
       render={({ field }) => (
         <FormItem className="md:col-span-2">
           <FormLabel required>Description</FormLabel>
@@ -92,14 +113,42 @@ export const TermsFields = <T extends FieldValues>({
   form: UseFormReturn<T>;
   isSingle: boolean;
 }) => (
-  <div className="grid gap-3 sm:grid-cols-3">
-    {isSingle ? (
+  <div className="flex flex-col gap-3">
+    <div
+      className={
+        isSingle ? "grid gap-3 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-1"
+      }
+    >
+      {isSingle ? (
+        <FormField
+          control={form.control}
+          name={"amount" as Path<T>}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel required>Amount</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  step="any"
+                  value={Number(field.value ?? 0)}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  placeholder="500…"
+                  className="tabular-nums"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ) : null}
       <FormField
         control={form.control}
-        name={"amount" as never}
+        name={"platformFee" as Path<T>}
         render={({ field }) => (
-          <FormItem>
-            <FormLabel required>Amount</FormLabel>
+          <FormItem className={isSingle ? undefined : "sm:max-w-xs"}>
+            <FormLabel required>Platform fee (%)</FormLabel>
             <FormControl>
               <Input
                 {...field}
@@ -108,7 +157,7 @@ export const TermsFields = <T extends FieldValues>({
                 step="any"
                 value={Number(field.value ?? 0)}
                 onChange={(e) => field.onChange(Number(e.target.value))}
-                placeholder="500…"
+                placeholder="2…"
                 className="tabular-nums"
               />
             </FormControl>
@@ -116,64 +165,13 @@ export const TermsFields = <T extends FieldValues>({
           </FormItem>
         )}
       />
-    ) : null}
-    <FormField
-      control={form.control}
-      name={"platformFee" as never}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel required>Platform fee (%)</FormLabel>
-          <FormControl>
-            <Input
-              {...field}
-              type="number"
-              min={0}
-              step="any"
-              value={Number(field.value ?? 0)}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-              placeholder="2…"
-              className="tabular-nums"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-    <FormField
-      control={form.control}
-      name={"trustline.contractId" as never}
-      render={({ field }) => (
-        <FormItem className={isSingle ? undefined : "sm:col-span-2"}>
-          <FormLabel required>Asset</FormLabel>
-          <Select
-            value={String(field.value ?? "")}
-            onValueChange={(value) => {
-              const selected = trustlines.find((t) => t.address === value);
-              field.onChange(value);
-              form.setValue(
-                "trustline.symbol" as never,
-                (selected?.symbol ?? "USDC") as never,
-              );
-            }}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder="USDC" />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              <SelectGroup>
-                {trustlines.map((t) => (
-                  <SelectItem key={t.address} value={t.address}>
-                    {t.symbol}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
+    </div>
+    <EscrowTrustlineField
+      form={form}
+      addressName={"trustline.address" as Path<T>}
+      symbolName={"trustline.symbol" as Path<T>}
+      isCustomName={"trustlineIsCustom" as Path<T>}
+      switchId="deploy-trustline-custom"
     />
   </div>
 );
@@ -189,7 +187,8 @@ export const RolesFields = <T extends FieldValues>({
     <div>
       <h3 className="text-sm font-medium">Roles</h3>
       <p className="text-xs text-muted-foreground">
-        Stellar addresses for each operational role.
+        Stellar addresses for each operational role. List roles support up to 5
+        addresses.
       </p>
     </div>
     <div className="rounded-xl border border-border p-3 sm:p-4">
@@ -204,7 +203,7 @@ export const RolesFields = <T extends FieldValues>({
           <FormField
             key={key}
             control={form.control}
-            name={`roles.${key}` as never}
+            name={`roles.${key}` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel required>{formatRoleLabel(key)}</FormLabel>
@@ -223,34 +222,14 @@ export const RolesFields = <T extends FieldValues>({
             )}
           />
         ))}
-        {(
-          [
-            "approvers",
-            "serviceProviders",
-            "releaseSigners",
-            "disputeResolvers",
-          ] as const
-        ).map((key) => (
-          <FormField
-            key={key}
-            control={form.control}
-            name={`roles.${key}.0` as never}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel required>{formatRoleLabel(key)}</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    value={String(field.value ?? "")}
-                    placeholder="G…"
-                    autoComplete="off"
-                    spellCheck={false}
-                    className="font-mono text-xs"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        {ROLE_LIST_FIELDS.map((item) => (
+          <EscrowRoleAddressList
+            key={item.key}
+            form={form}
+            name={`roles.${item.key}` as Path<T>}
+            label={formatRoleLabel(item.key)}
+            minCount={item.minCount}
+            required={item.required}
           />
         ))}
       </div>

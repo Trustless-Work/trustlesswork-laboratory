@@ -1,7 +1,12 @@
 "use client";
 
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import type { UseFormReturn } from "react-hook-form";
+import type {
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormReturn,
+} from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -11,42 +16,39 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { MAX_ROLE_ADDRESS_COUNT } from "@/features/escrow-lab/constants/role-address.constants";
-import type { OperateLabFormValues } from "@/features/escrow-lab/schemas/operate.schema";
 
-type RoleListFieldName =
-  | "updateApprovers"
-  | "updateServiceProviders"
-  | "updateReleaseSigners"
-  | "updateDisputeResolvers"
-  | "updateObservers";
-
-interface EscrowRoleAddressListProps {
-  form: UseFormReturn<OperateLabFormValues>;
-  name: RoleListFieldName;
+interface EscrowRoleAddressListProps<T extends FieldValues> {
+  form: UseFormReturn<T>;
+  name: Path<T>;
   label: string;
   minCount?: number;
   required?: boolean;
 }
 
-export const EscrowRoleAddressList = ({
+export const EscrowRoleAddressList = <T extends FieldValues>({
   form,
   name,
   label,
   minCount = 1,
   required = true,
-}: EscrowRoleAddressListProps) => {
+}: EscrowRoleAddressListProps<T>) => {
   const addresses = form.watch(name);
-  const list = Array.isArray(addresses) ? addresses : [];
+  const list = Array.isArray(addresses) ? (addresses as string[]) : [];
   const atMax = list.length >= MAX_ROLE_ADDRESS_COUNT;
   const lastValue = list[list.length - 1] ?? "";
   const lastFilled = list.length === 0 || lastValue.trim().length > 0;
   const canAdd = !atMax && lastFilled;
-  const error = form.formState.errors[name];
+  const fieldState = form.getFieldState(name, form.formState);
   const errorMessage =
-    typeof error?.message === "string" ? error.message : undefined;
+    typeof fieldState.error?.message === "string"
+      ? fieldState.error.message
+      : undefined;
 
   function setList(next: string[]) {
-    form.setValue(name, next, { shouldDirty: true, shouldTouch: true });
+    form.setValue(name, next as PathValue<T, Path<T>>, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
     form.clearErrors(name);
   }
 
@@ -75,7 +77,7 @@ export const EscrowRoleAddressList = ({
       ) : (
         <div className="flex flex-col gap-2">
           {list.map((address, index) => (
-            <div key={`${name}-${index}`} className="flex items-center gap-2">
+            <div key={`${String(name)}-${index}`} className="flex items-center gap-2">
               <FormControl>
                 <Input
                   value={address}

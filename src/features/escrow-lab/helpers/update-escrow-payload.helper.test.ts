@@ -3,10 +3,12 @@ import type { EscrowSummary } from "@/types";
 import {
   buildUpdateEscrowPayload,
   formatAddressList,
+  isPresetTrustlineAddress,
   parseAddressList,
   resolveTrustlineAddress,
   resolveTrustlineSymbol,
   toAddressArray,
+  toTrustlinePayload,
 } from "./update-escrow-payload.helper";
 
 function singleEscrow(): EscrowSummary {
@@ -117,7 +119,7 @@ describe("buildUpdateEscrowPayload", () => {
     });
 
     expect(payload.escrow.trustline).toEqual({
-      address: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      contractId: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
       symbol: "USDC",
     });
   });
@@ -139,6 +141,40 @@ describe("trustline helpers", () => {
     expect(resolveTrustlineAddress({ address: "CADDR" })).toBe("CADDR");
     expect(resolveTrustlineAddress({ contractId: "CID" })).toBe("CID");
     expect(resolveTrustlineSymbol({ symbol: " USDC " })).toBe("USDC");
+  });
+
+  it("maps the form SAC to contractId and symbol", () => {
+    expect(
+      toTrustlinePayload({
+        address: " CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA ",
+        symbol: " USDC ",
+      }),
+    ).toEqual({
+      contractId: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      symbol: "USDC",
+    });
+  });
+
+  it("prefers a stored contract id over an issuer address", () => {
+    expect(
+      resolveTrustlineAddress({
+        address: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+        contractId: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      }),
+    ).toBe("CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA");
+  });
+
+  it("detects preset trustline addresses", () => {
+    expect(
+      isPresetTrustlineAddress(
+        "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      ),
+    ).toBe(true);
+    expect(
+      isPresetTrustlineAddress(
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      ),
+    ).toBe(false);
   });
 });
 

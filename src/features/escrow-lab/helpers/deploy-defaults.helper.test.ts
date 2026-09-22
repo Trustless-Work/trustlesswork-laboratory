@@ -3,6 +3,7 @@ import {
   buildDeployEngagementId,
   buildMultiDeployDefaults,
   buildSingleDeployDefaults,
+  stripDeployFormUiFields,
 } from "@/features/escrow-lab/helpers/deploy-defaults.helper";
 
 const WALLET = "GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRS";
@@ -24,6 +25,9 @@ describe("buildSingleDeployDefaults", () => {
     expect(defaults.roles.receiver).toBe(WALLET);
     expect(defaults.roles.admin).toBe("");
     expect(defaults.roles.disputeResolvers).toEqual([""]);
+    expect(defaults.roles.observers).toEqual([]);
+    expect(defaults.trustlineIsCustom).toBe(false);
+    expect(defaults.trustline.address).toMatch(/^C/);
     expect(defaults.milestones).toHaveLength(1);
   });
 
@@ -39,5 +43,18 @@ describe("buildMultiDeployDefaults", () => {
     const defaults = buildMultiDeployDefaults(WALLET);
     expect(defaults.milestones[0]?.receiver).toBe(WALLET);
     expect(defaults.roles.releaseSigners).toEqual([WALLET]);
+    expect(defaults.trustlineIsCustom).toBe(false);
+  });
+});
+
+describe("stripDeployFormUiFields", () => {
+  it("removes isCustom and maps trustline to the wire payload", () => {
+    const defaults = buildSingleDeployDefaults(WALLET);
+    const payload = stripDeployFormUiFields(defaults);
+    expect(payload).not.toHaveProperty("trustlineIsCustom");
+    expect(payload.trustline).toEqual({
+      contractId: defaults.trustline.address,
+      symbol: defaults.trustline.symbol,
+    });
   });
 });

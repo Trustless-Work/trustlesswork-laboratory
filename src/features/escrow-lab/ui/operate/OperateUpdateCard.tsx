@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { trustlines } from "@/components/tw-blocks/wallet-kit/trustlines";
 import {
   validateUpdateEscrowLabFields,
   type OperateLabFormValues,
@@ -20,6 +19,7 @@ import { parseAmount } from "@/features/escrow-lab/helpers/amount.helper";
 import { gateAction } from "@/features/escrow-lab/helpers/gating.helper";
 import {
   buildUpdateEscrowPayload,
+  isPresetTrustlineAddress,
   resolveTrustlineAddress,
   resolveTrustlineSymbol,
   toAddressArray,
@@ -88,9 +88,7 @@ export const OperateUpdateCard = ({
     const trustline = asRecord(current.trustline) ?? {};
     const address = resolveTrustlineAddress(trustline);
     const symbol = resolveTrustlineSymbol(trustline) || "USDC";
-    const isCustom = Boolean(
-      address && !trustlines.some((t) => t.address === address),
-    );
+    const isCustom = Boolean(address) && !isPresetTrustlineAddress(address);
 
     form.setValue("updateEngagementId", String(current.engagementId ?? ""));
     form.setValue("updateTitle", String(current.title ?? ""));
@@ -273,13 +271,24 @@ export const OperateUpdateCard = ({
                 </FormItem>
               )}
             />
-            <EscrowTrustlineField form={form} />
+            <EscrowTrustlineField
+              form={form}
+              addressName="updateTrustlineAddress"
+              symbolName="updateTrustlineSymbol"
+              isCustomName="updateTrustlineIsCustom"
+              switchId="update-trustline-custom"
+            />
           </>
         ) : (
           <EscrowTrustlineField
             form={form}
+            addressName="updateTrustlineAddress"
+            symbolName="updateTrustlineSymbol"
+            isCustomName="updateTrustlineIsCustom"
+            platformFeeName="updatePlatformFee"
             showPlatformFee
             heading="Fees & asset"
+            switchId="update-trustline-custom"
           />
         )}
         <OperateUpdateRolesFields
