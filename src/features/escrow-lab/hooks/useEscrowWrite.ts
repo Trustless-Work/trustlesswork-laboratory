@@ -14,6 +14,12 @@ import {
   getLabWriteToastMessages,
   showLabTransactionSuccessToast,
 } from "@/features/escrow-lab/helpers/transaction-toast.helper";
+import { useLabApiKey } from "@/features/escrow-lab/hooks/useLabApiKey";
+import {
+  escrowDetailQueryKey,
+  escrowMilestonesQueryKey,
+} from "@/features/escrow-lab/lib/escrow-query-keys";
+import { getLabApiKeyFingerprint } from "@/features/escrow-lab/lib/lab-api-key";
 import { useLabConsole } from "@/features/escrow-lab/hooks/useLabConsole";
 import type {
   DeployEscrowResponse,
@@ -48,6 +54,8 @@ export function useEscrowWrite() {
   const { walletAddress } = useWalletContext();
   const queryClient = useQueryClient();
   const { pushEntry, updateEntry } = useLabConsole();
+  const { apiKey } = useLabApiKey();
+  const apiKeyFp = getLabApiKeyFingerprint(apiKey);
 
   return useMutation({
     mutationFn: async ({ type, action, payload }: WriteArgs) => {
@@ -101,24 +109,23 @@ export function useEscrowWrite() {
               : submitted.contractId;
 
         if (contractId) {
-          const previous = queryClient.getQueryData<EscrowDetail>([
-            "escrow",
-            contractId,
-          ]);
+          const detailKey = escrowDetailQueryKey(apiKeyFp, contractId);
+          const previous =
+            queryClient.getQueryData<EscrowDetail>(detailKey);
           const detail = await waitForEscrowDetailRefresh({
             previous,
             fetchDetail: () => labApiService.getEscrow(contractId),
           });
-          queryClient.setQueryData(["escrow", contractId], detail);
+          queryClient.setQueryData(detailKey, detail);
         }
 
         await queryClient.invalidateQueries({ queryKey: ["escrows"] });
         if (contractId) {
           await queryClient.invalidateQueries({
-            queryKey: ["escrow", contractId, "events"],
+            queryKey: ["escrow", apiKeyFp, contractId, "events"],
           });
           await queryClient.invalidateQueries({
-            queryKey: ["escrow", contractId, "milestones"],
+            queryKey: escrowMilestonesQueryKey(apiKeyFp, contractId),
           });
         }
 

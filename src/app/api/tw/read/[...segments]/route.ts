@@ -74,6 +74,7 @@ export async function GET(
     const client = getTrustlessWorkClient(getRequestApiKey(request));
 
     const contractIds = searchParams.getAll("contractIds");
+    const eventOrder = searchParams.get("order");
     const result = await executeRead(client.rest, operation, {
       contractId: maybeId,
       contractIds: contractIds.length ? contractIds : undefined,
@@ -83,6 +84,10 @@ export async function GET(
         limit: searchParams.get("limit")
           ? Number(searchParams.get("limit"))
           : undefined,
+        order:
+          eventOrder === "asc" || eventOrder === "desc"
+            ? eventOrder
+            : undefined,
       },
     });
 

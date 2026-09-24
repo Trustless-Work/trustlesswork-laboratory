@@ -21,9 +21,17 @@ export type {
   SendTransactionCode,
   ListEscrowsParams,
   ListEscrowsResponse,
+  ListEscrowEventsParams,
+  ListEscrowEventsResponse,
   EscrowStatus,
   Role,
   EscrowEvent,
+  EscrowFinancial,
+  EscrowMilestones,
+  EscrowDetailsItem,
+  BatchEscrowDetailsResponse,
+  BatchEscrowFinancialResponse,
+  BatchEscrowMilestonesResponse,
   FundEscrowPayload,
   DeploySingleReleaseEscrowPayload,
   DeployMultiReleaseEscrowPayload,
@@ -44,7 +52,7 @@ export type {
   ManageMultiReleaseMilestonesPayload,
 } from "@trustless-work/escrow-js";
 
-export type LabTab = "deploy" | "operate";
+export type LabTab = "deploy" | "operate" | "info";
 
 export type LabWriteAction =
   | "deploy"

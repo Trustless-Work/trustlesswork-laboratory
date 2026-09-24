@@ -1,10 +1,16 @@
 import type {
+  BatchEscrowDetailsResponse,
+  BatchEscrowFinancialResponse,
+  BatchEscrowMilestonesResponse,
   BuildTransactionResponse,
   DeployEscrowResponse,
   EscrowDetail,
+  EscrowMilestones,
   EscrowSummary,
   EscrowType,
   LabWriteAction,
+  ListEscrowEventsParams,
+  ListEscrowEventsResponse,
   ListEscrowsParams,
   ListEscrowsResponse,
   SendTransactionResponse,
@@ -137,35 +143,38 @@ export const labApiService = {
 
   getEvents(
     contractId: string,
-    params?: { cursor?: string; limit?: number },
-  ): Promise<unknown> {
+    params?: ListEscrowEventsParams,
+  ): Promise<ListEscrowEventsResponse> {
     return request(
       `/api/tw/read/events/${encodeURIComponent(contractId)}${toSearchParams({
         cursor: params?.cursor,
         limit: params?.limit,
+        order: params?.order,
       })}`,
     );
   },
 
-  getMilestones(contractId: string): Promise<unknown> {
+  getMilestones(contractId: string): Promise<EscrowMilestones> {
     return request(
       `/api/tw/read/milestones/${encodeURIComponent(contractId)}`,
     );
   },
 
-  getDetails(contractIds: string[]): Promise<unknown> {
+  getDetails(contractIds: string[]): Promise<BatchEscrowDetailsResponse> {
     return request(
       `/api/tw/read/details${toSearchParams({ contractIds })}`,
     );
   },
 
-  getFinancial(contractIds: string[]): Promise<unknown> {
+  getFinancial(contractIds: string[]): Promise<BatchEscrowFinancialResponse> {
     return request(
       `/api/tw/read/financial${toSearchParams({ contractIds })}`,
     );
   },
 
-  getBatchMilestones(contractIds: string[]): Promise<unknown> {
+  getBatchMilestones(
+    contractIds: string[],
+  ): Promise<BatchEscrowMilestonesResponse> {
     return request(
       `/api/tw/read/batch-milestones${toSearchParams({ contractIds })}`,
     );
