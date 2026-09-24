@@ -7,16 +7,22 @@ import {
   LAB_OBSERVER,
 } from "./deploy-template.helper";
 import {
+  deployMultiFormSchema,
   deployMultiSchema,
+  deploySingleFormSchema,
   deploySingleSchema,
 } from "@/features/escrow-lab/schemas/operate.schema";
+import { stripDeployFormUiFields } from "@/features/escrow-lab/helpers/deploy-defaults.helper";
 
 const WALLET = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
 describe("deploy templates", () => {
   it("builds a valid single-release template", () => {
     const template = buildSingleDeployTemplate(WALLET);
-    const parsed = deploySingleSchema.safeParse(template);
+    expect(deploySingleFormSchema.safeParse(template).success).toBe(true);
+    const parsed = deploySingleSchema.safeParse(
+      stripDeployFormUiFields(template),
+    );
     expect(
       parsed.success,
       parsed.success ? undefined : JSON.stringify(parsed.error.issues),
@@ -25,11 +31,15 @@ describe("deploy templates", () => {
     expect(template.roles.disputeResolvers[0]).toBe(LAB_DISPUTE_RESOLVER);
     expect(template.roles.observers).toEqual([LAB_OBSERVER]);
     expect(template.roles.receiver).toBe(WALLET);
+    expect(template.trustlineIsCustom).toBe(false);
   });
 
   it("builds a valid multi-release template", () => {
     const template = buildMultiDeployTemplate(WALLET);
-    const parsed = deployMultiSchema.safeParse(template);
+    expect(deployMultiFormSchema.safeParse(template).success).toBe(true);
+    const parsed = deployMultiSchema.safeParse(
+      stripDeployFormUiFields(template),
+    );
     expect(
       parsed.success,
       parsed.success ? undefined : JSON.stringify(parsed.error.issues),
@@ -38,5 +48,6 @@ describe("deploy templates", () => {
     expect(template.roles.disputeResolvers[0]).toBe(LAB_DISPUTE_RESOLVER);
     expect(template.roles.observers).toEqual([LAB_OBSERVER]);
     expect(template.milestones).toHaveLength(2);
+    expect(template.trustlineIsCustom).toBe(false);
   });
 });

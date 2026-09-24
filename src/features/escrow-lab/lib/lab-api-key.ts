@@ -34,3 +34,20 @@ export function maskApiKey(value: string): string {
   if (trimmed.length <= 8) return "••••••••";
   return `${trimmed.slice(0, 4)}…${trimmed.slice(-4)}`;
 }
+
+/**
+ * Stable cache partition for TanStack Query. Never put the raw API key in a
+ * query key — this fingerprint changes when the lab override changes, and is
+ * `"default"` when the BFF falls back to `serverEnv.api.apiKey`.
+ */
+export function getLabApiKeyFingerprint(apiKey?: string | null): string {
+  const value = (apiKey ?? getLabApiKey())?.trim();
+  if (!value) return "default";
+
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `k${(hash >>> 0).toString(36)}`;
+}

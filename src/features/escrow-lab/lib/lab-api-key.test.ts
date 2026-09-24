@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import {
   clearLabApiKey,
   getLabApiKey,
+  getLabApiKeyFingerprint,
   maskApiKey,
   setLabApiKey,
 } from "./lab-api-key";
@@ -31,6 +32,39 @@ describe("maskApiKey", () => {
   it("masks keys for display", () => {
     expect(maskApiKey("tw_abcdefghijklmnop")).toBe("tw_a…mnop");
     expect(maskApiKey("short")).toBe("••••••••");
+  });
+});
+
+describe("getLabApiKeyFingerprint", () => {
+  beforeEach(() => {
+    installSessionStorage();
+  });
+
+  afterEach(() => {
+    Reflect.deleteProperty(globalThis, "sessionStorage");
+    Reflect.deleteProperty(globalThis, "window");
+  });
+
+  it("returns default when no override is set", () => {
+    expect(getLabApiKeyFingerprint()).toBe("default");
+    expect(getLabApiKeyFingerprint(null)).toBe("default");
+    expect(getLabApiKeyFingerprint("")).toBe("default");
+  });
+
+  it("is stable for the same key and distinct across keys", () => {
+    const a = getLabApiKeyFingerprint("tw_alpha_key_one");
+    const b = getLabApiKeyFingerprint("tw_alpha_key_one");
+    const c = getLabApiKeyFingerprint("tw_beta_key_two");
+    expect(a).toBe(b);
+    expect(a).not.toBe(c);
+    expect(a).toMatch(/^k[0-9a-z]+$/);
+  });
+
+  it("reads the stored override when no argument is passed", () => {
+    setLabApiKey("tw_stored_key");
+    expect(getLabApiKeyFingerprint()).toBe(
+      getLabApiKeyFingerprint("tw_stored_key"),
+    );
   });
 });
 

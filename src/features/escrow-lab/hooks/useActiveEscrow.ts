@@ -6,7 +6,7 @@ import type { EscrowType, LabTab } from "@/types";
 import { normalizeEscrowType } from "@/features/escrow-lab/constants/icons";
 import { useEscrowDetail } from "@/features/escrow-lab/hooks/useEscrowReads";
 
-const TABS: LabTab[] = ["deploy", "operate"];
+const TABS: LabTab[] = ["deploy", "operate", "info"];
 
 function isLabTab(value: string | null): value is LabTab {
   return value !== null && (TABS as string[]).includes(value);

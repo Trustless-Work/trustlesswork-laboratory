@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
-import { FilePlus2Icon, WrenchIcon } from "lucide-react";
+import { FilePlus2Icon, SearchIcon, WrenchIcon } from "lucide-react";
 import { DashboardPageHeader } from "@/components/shared/DashboardPageHeader";
 import { Lights } from "@/components/shared/Lights";
 import { RoundedTabs } from "@/components/shared/RoundedTabs";
@@ -15,6 +15,7 @@ import { LabShellSkeleton } from "@/features/escrow-lab/ui/LabShellSkeleton";
 import { ActiveEscrowBar } from "@/features/escrow-lab/ui/ActiveEscrowBar";
 import { TransactionConsole } from "@/features/escrow-lab/ui/console/TransactionConsole";
 import { DeployTab } from "@/features/escrow-lab/ui/deploy/DeployTab";
+import { InformationTab } from "@/features/escrow-lab/ui/info/InformationTab";
 import { OperateTab } from "@/features/escrow-lab/ui/operate/OperateTab";
 import { useHydrated } from "@/hooks/useHydrated";
 import type { EscrowType, LabTab } from "@/types";
@@ -68,11 +69,13 @@ const EscrowLabContent = () => {
           items={[
             { value: "deploy", label: "Deploy", icon: FilePlus2Icon },
             { value: "operate", label: "Operate", icon: WrenchIcon },
+            { value: "info", label: "Information", icon: SearchIcon },
           ]}
         />
 
         {tab === "deploy" ? <DeployTab type={type} /> : null}
         {tab === "operate" ? <OperateTab /> : null}
+        {tab === "info" ? <InformationTab /> : null}
       </main>
       <TransactionConsole />
     </div>

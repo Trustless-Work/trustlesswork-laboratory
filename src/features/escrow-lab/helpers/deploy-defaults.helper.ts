@@ -1,23 +1,46 @@
 import type { z } from "zod";
-import { trustlines } from "@/components/tw-blocks/wallet-kit/trustlines";
+import { trustlineOptions } from "@/components/tw-blocks/wallet-kit/trustlines";
 import {
+  deployMultiFormSchema,
+  deploySingleFormSchema,
   deployMultiSchema,
   deploySingleSchema,
 } from "@/features/escrow-lab/schemas/operate.schema";
+import { toTrustlinePayload } from "@/features/escrow-lab/helpers/update-escrow-payload.helper";
 
-export type DeploySingleDefaults = z.infer<typeof deploySingleSchema>;
-export type DeployMultiDefaults = z.infer<typeof deployMultiSchema>;
+export type DeploySingleDefaults = z.infer<typeof deploySingleFormSchema>;
+export type DeployMultiDefaults = z.infer<typeof deployMultiFormSchema>;
+export type DeploySinglePayload = z.infer<typeof deploySingleSchema>;
+export type DeployMultiPayload = z.infer<typeof deployMultiSchema>;
 
 function defaultTrustline() {
+  const first = trustlineOptions[0];
   return {
-    contractId: trustlines[0]?.address ?? "",
-    symbol: trustlines[0]?.symbol ?? "USDC",
+    address: first?.value ?? "",
+    symbol: first?.label ?? "USDC",
   };
 }
 
 export function buildDeployEngagementId(wallet: string): string {
   const seed = wallet.slice(-8);
   return `ENG-${seed || "lab"}`;
+}
+
+export function stripDeployFormUiFields(
+  values: DeploySingleDefaults,
+): DeploySinglePayload;
+export function stripDeployFormUiFields(
+  values: DeployMultiDefaults,
+): DeployMultiPayload;
+export function stripDeployFormUiFields(
+  values: DeploySingleDefaults | DeployMultiDefaults,
+): DeploySinglePayload | DeployMultiPayload {
+  const { trustlineIsCustom, trustline, ...rest } = values;
+  void trustlineIsCustom;
+  return {
+    ...rest,
+    trustline: toTrustlinePayload(trustline),
+  };
 }
 
 export function buildSingleDeployDefaults(
@@ -42,6 +65,7 @@ export function buildSingleDeployDefaults(
     },
     milestones: [{ description: "Phase 1", approvalsTarget: 1 }],
     trustline: defaultTrustline(),
+    trustlineIsCustom: false,
   };
 }
 
@@ -70,5 +94,6 @@ export function buildMultiDeployDefaults(wallet: string): DeployMultiDefaults {
       },
     ],
     trustline: defaultTrustline(),
+    trustlineIsCustom: false,
   };
 }

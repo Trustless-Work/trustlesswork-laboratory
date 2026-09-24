@@ -158,9 +158,14 @@ export const multiReleaseRolesSchema = z
     }
   });
 
-export const deployTrustlineSchema = z.object({
+export const deployTrustlineFormSchema = z.object({
+  address: contractId,
+  symbol: z.string().trim().min(1, "Symbol is required").max(12),
+});
+
+export const trustlinePayloadSchema = z.object({
   contractId: contractId,
-  symbol: z.string().min(1).max(12),
+  symbol: z.string().trim().min(1, "Symbol is required").max(12),
 });
 
 export const singleReleaseMilestoneSchema = z.object({
@@ -183,7 +188,7 @@ export const deploySingleSchema = z.object({
   platformFee: z.number().int().min(0).max(99),
   roles: singleReleaseRolesSchema,
   milestones: z.array(singleReleaseMilestoneSchema).max(50),
-  trustline: deployTrustlineSchema,
+  trustline: trustlinePayloadSchema,
   receiverMemo: z.number().int().nonnegative().optional(),
 });
 
@@ -195,7 +200,35 @@ export const deployMultiSchema = z.object({
   platformFee: z.number().int().min(0).max(99),
   roles: multiReleaseRolesSchema,
   milestones: z.array(multiReleaseMilestoneSchema).max(50),
-  trustline: deployTrustlineSchema,
+  trustline: trustlinePayloadSchema,
+  receiverMemo: z.number().int().nonnegative().optional(),
+});
+
+/** Lab form schemas — `trustlineIsCustom` is UI-only and stripped before the API. */
+export const deploySingleFormSchema = z.object({
+  signer: stellarAddress,
+  engagementId: z.string().min(1).max(100),
+  title: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
+  amount: z.number().positive(),
+  platformFee: z.number().int().min(0).max(99),
+  roles: singleReleaseRolesSchema,
+  milestones: z.array(singleReleaseMilestoneSchema).max(50),
+  trustline: deployTrustlineFormSchema,
+  trustlineIsCustom: z.boolean(),
+  receiverMemo: z.number().int().nonnegative().optional(),
+});
+
+export const deployMultiFormSchema = z.object({
+  signer: stellarAddress,
+  engagementId: z.string().min(1).max(100),
+  title: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
+  platformFee: z.number().int().min(0).max(99),
+  roles: multiReleaseRolesSchema,
+  milestones: z.array(multiReleaseMilestoneSchema).max(50),
+  trustline: deployTrustlineFormSchema,
+  trustlineIsCustom: z.boolean(),
   receiverMemo: z.number().int().nonnegative().optional(),
 });
 
@@ -319,11 +352,7 @@ export const updateSingleSchema = z.object({
     platformFee: z.number().int().min(0).max(100),
     roles: singleReleaseRolesSchema,
     milestones: z.array(singleReleaseMilestoneSchema).min(1).max(50),
-    trustline: z.object({
-      address: z.string().min(1),
-      symbol: z.string().optional(),
-      contractId: z.string().optional(),
-    }),
+    trustline: trustlinePayloadSchema,
     receiverMemo: z.number().int().nonnegative().optional(),
   }),
 });
@@ -338,11 +367,7 @@ export const updateMultiSchema = z.object({
     platformFee: z.number().int().min(0).max(100),
     roles: multiReleaseRolesSchema,
     milestones: z.array(multiReleaseMilestoneSchema).min(1).max(50),
-    trustline: z.object({
-      address: z.string().min(1),
-      symbol: z.string().optional(),
-      contractId: z.string().optional(),
-    }),
+    trustline: trustlinePayloadSchema,
     receiverMemo: z.number().int().nonnegative().optional(),
   }),
 });

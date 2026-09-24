@@ -33,7 +33,7 @@ export async function executeRead(
     contractId?: string;
     contractIds?: string[];
     listParams?: ListEscrowsParams;
-    eventParams?: { cursor?: string; limit?: number };
+    eventParams?: { cursor?: string; limit?: number; order?: "asc" | "desc" };
   },
 ): Promise<unknown> {
   switch (operation) {

@@ -1,8 +1,8 @@
 /**
  * Trustlines | Non-Native Tokens from Stellar (Soroban SAC contract ids)
  *
- * Deploy expects `trustline.contractId` (C… 56 chars) + `trustline.symbol`.
- * Preset `address` values are the SAC contract ids used as contractId on deploy.
+ * The form stores the SAC in `address` (C…, 56 chars) plus `symbol`.
+ * Deploy and update send `{ contractId, symbol }` — `contractId` is that SAC.
  * Escrow Lab is testnet-only.
  */
 export const trustlines = [

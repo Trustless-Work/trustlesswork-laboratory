@@ -1,5 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import { FilePlus2Icon, WrenchIcon } from "lucide-react";
+import {
+  FilePlus2Icon,
+  SearchIcon,
+  WrenchIcon,
+} from "lucide-react";
 import type { EscrowType, LabTab } from "@/types";
 
 export interface LabHeaderCopy {
@@ -23,6 +27,15 @@ export function getLabHeaderCopy(
         type === "single-release"
           ? "Set terms, roles, and milestones. After deploy you land in Operate to fund and release."
           : "Configure tranches and roles. After deploy you land in Operate to fund each milestone.",
+    };
+  }
+
+  if (tab === "info") {
+    return {
+      icon: SearchIcon,
+      title: "Escrow Information",
+      description:
+        "Pick a read endpoint, inspect its docs and request shape, run it, and read the JSON response — scoped to the active API key.",
     };
   }
 
