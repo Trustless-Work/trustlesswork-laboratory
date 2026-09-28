@@ -15,10 +15,16 @@ import {
   gateReason,
 } from "@/features/escrow-lab/ui/operate/ActionCard";
 import {
+  getEscrowAssetSymbol,
+  parseAmount,
+} from "@/features/escrow-lab/helpers/amount.helper";
+import {
   parseDistributionLines,
   validateResolveDistributions,
+  validateWithdrawDistributions,
 } from "@/features/escrow-lab/helpers/distribution.helper";
 import { gateAction } from "@/features/escrow-lab/helpers/gating.helper";
+import { WithdrawDistributionsFields } from "@/features/escrow-lab/ui/operate/WithdrawDistributionsFields";
 import { toast } from "sonner";
 import type { EscrowSummary, LabWriteAction } from "@/types";
 
@@ -45,6 +51,8 @@ export const OperateSettleActions = ({
         milestoneIndexes: selected,
       }),
     );
+  const remainingBalance = parseAmount(escrow.balance);
+  const assetSymbol = getEscrowAssetSymbol(escrow);
 
   return (
     <>
@@ -190,23 +198,38 @@ export const OperateSettleActions = ({
 
       <ActionCard
         title="Withdraw Remaining Funds"
-        description="Full sweep when the escrow is terminal."
+        description="After release or a resolved dispute, send the leftover balance to one or more wallets."
         action="withdraw-remaining-funds"
         roles={["dispute-resolvers"]}
         loading={isPending}
         disabledReason={g("withdraw-remaining-funds")}
         onSubmit={async () => {
-          const valid = await form.trigger("distributions");
+          const valid = await form.trigger("withdrawDistributions");
           if (!valid) return;
+          const distributions = form
+            .getValues("withdrawDistributions")
+            .map((row) => ({
+              address: row.address.trim(),
+              amount: Number(row.amount),
+            }));
+          const error = validateWithdrawDistributions(escrow, distributions);
+          if (error) {
+            toast.error(error);
+            return;
+          }
           await onRun("withdraw-remaining-funds", {
             contractId: escrow.contractId,
             disputeResolver: walletAddress,
-            distributions: parseDistributionLines(
-              form.getValues("distributions"),
-            ),
+            distributions,
           });
         }}
-      />
+      >
+        <WithdrawDistributionsFields
+          form={form}
+          balance={remainingBalance}
+          assetSymbol={assetSymbol}
+        />
+      </ActionCard>
     </>
   );
 };

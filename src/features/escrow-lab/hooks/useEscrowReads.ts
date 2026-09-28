@@ -115,7 +115,7 @@ export function useEscrowMilestonesBatch(contractIds: readonly string[]) {
 export function useEscrowFiltersDefaults(type: EscrowType): ListEscrowsParams {
   return {
     scope: "mine",
-    contractType: type,
+    type,
     limit: DEFAULT_KEYSET_LIMIT,
     sort: "createdAt",
     order: "desc",

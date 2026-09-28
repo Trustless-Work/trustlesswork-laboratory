@@ -1,5 +1,6 @@
 import {
   amountsEqual,
+  formatAmount,
   parseAmount,
   sumDistributions,
 } from "@/features/escrow-lab/helpers/amount.helper";
@@ -58,6 +59,46 @@ export function validateResolveDistributions(
   }
   if (total > cap + 1e-6) {
     return `Distributions must be ≤ selected milestone amounts (${cap})`;
+  }
+  return null;
+}
+
+export function getWithdrawAllocationStatus(input: {
+  allocated: number;
+  balance: number;
+  assetSymbol: string;
+  incomplete: boolean;
+  over: boolean;
+}): string {
+  const { allocated, balance, assetSymbol, incomplete, over } = input;
+  if (over) {
+    return `${formatAmount(allocated - balance)} ${assetSymbol} over the remaining balance`;
+  }
+  if (!amountsEqual(allocated, balance)) {
+    return `${formatAmount(balance - allocated)} ${assetSymbol} still unassigned`;
+  }
+  if (incomplete) {
+    return "Each row needs a wallet and a positive amount";
+  }
+  return `${formatAmount(allocated)} ${assetSymbol} assigned`;
+}
+
+/** Withdraw is a full sweep: wallet rows must add up to the remaining balance. */
+export function validateWithdrawDistributions(
+  escrow: EscrowSummary,
+  distributions: Array<{ address: string; amount: number }>,
+): string | null {
+  if (distributions.length === 0) return "Add at least one wallet";
+  if (
+    distributions.some((row) => !row.address.trim() || !(row.amount > 0))
+  ) {
+    return "Each row needs a wallet and a positive amount";
+  }
+
+  const balance = parseAmount(escrow.balance);
+  const total = sumDistributions(distributions);
+  if (!amountsEqual(total, balance)) {
+    return `Amounts must equal the remaining balance (${formatAmount(balance)}). Assigned ${formatAmount(total)}.`;
   }
   return null;
 }

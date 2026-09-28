@@ -119,7 +119,7 @@ export const labApiService = {
       `/api/tw/read/list${toSearchParams({
         scope: params.scope,
         status: params.status,
-        contractType: params.contractType,
+        type: params.type,
         engagementId: params.engagementId,
         participant: params.participant,
         role: params.role,

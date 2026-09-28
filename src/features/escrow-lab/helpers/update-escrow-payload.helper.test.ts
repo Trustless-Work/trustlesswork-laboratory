@@ -18,7 +18,7 @@ function singleEscrow(): EscrowSummary {
     type: "single-release",
     engagementId: "ENG-1",
     status: "active",
-    totalAmount: null,
+    amount: null,
     balance: "0",
     asset: null,
     lastLedgerSeq: "1",

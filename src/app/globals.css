@@ -167,6 +167,29 @@
   display: none;
 }
 
+.scrollbar-ghost {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 14%, var(--background))
+    var(--background);
+}
+
+.scrollbar-ghost::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: var(--background);
+}
+
+.scrollbar-ghost::-webkit-scrollbar-track,
+.scrollbar-ghost::-webkit-scrollbar-corner {
+  background: var(--background);
+}
+
+.scrollbar-ghost::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 14%, var(--background));
+  border: 2px solid var(--background);
+  border-radius: 999px;
+}
+
 .lab-action-highlight {
   outline: 2px solid var(--primary);
   outline-offset: 2px;

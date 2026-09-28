@@ -6,18 +6,18 @@ import { Separator } from "@/components/ui/separator";
 export const LabShellSkeleton = () => (
   <div className="relative flex min-h-svh flex-col">
     <header className="sticky top-0 z-40 border-b border-border bg-background/80">
-      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 md:h-16 md:px-8">
-        <div className="flex items-center gap-2.5">
-          <Skeleton className="h-6 w-7 rounded" />
-          <Skeleton className="h-5 w-px" />
+      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-1.5 gap-y-2 px-3 py-2 md:h-16 md:flex-nowrap md:gap-3 md:px-8 md:py-0">
+        <div className="order-1 flex min-w-0 flex-1 items-center gap-2.5 md:order-none md:mr-auto md:flex-none">
+          <Skeleton className="h-6 w-7 shrink-0 rounded" />
+          <Skeleton className="h-5 w-px shrink-0" />
           <Skeleton className="h-4 w-24" />
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Skeleton className="size-9 rounded-4xl" />
-          <Skeleton className="h-9 w-28 rounded-4xl" />
-          <Skeleton className="h-9 w-40 rounded-4xl" />
-          <Skeleton className="size-9 rounded-4xl" />
+        <Skeleton className="order-2 size-9 shrink-0 rounded-4xl md:order-none" />
+        <div className="order-4 flex w-full min-w-0 items-center gap-1.5 md:order-none md:w-auto">
+          <Skeleton className="h-9 w-11 shrink-0 rounded-4xl sm:w-28" />
+          <Skeleton className="h-9 min-w-0 flex-1 rounded-4xl md:w-40 md:flex-none" />
         </div>
+        <Skeleton className="order-3 size-9 shrink-0 rounded-4xl md:order-none" />
       </div>
     </header>
 

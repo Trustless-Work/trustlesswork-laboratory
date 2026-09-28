@@ -76,34 +76,14 @@ describe("getEscrowAssetSymbol", () => {
 });
 
 describe("getEscrowTotalAmount", () => {
-  it("reads the single-release escrow amount", () => {
-    expect(
-      getEscrowTotalAmount({
-        type: "single-release",
-        totalAmount: null,
-        snapshot: { amount: "250" },
-      } as Pick<EscrowSummary, "type" | "totalAmount" | "snapshot">),
-    ).toBe(250);
+  it("reads the root amount for both flavors", () => {
+    expect(getEscrowTotalAmount({ amount: "250" })).toBe(250);
+    expect(getEscrowTotalAmount({ amount: "650.5" })).toBe(650.5);
   });
 
-  it("prefers the projected multi-release total", () => {
-    expect(
-      getEscrowTotalAmount({
-        type: "multi-release",
-        totalAmount: "650",
-        snapshot: { milestones: [{ amount: "100" }] },
-      } as Pick<EscrowSummary, "type" | "totalAmount" | "snapshot">),
-    ).toBe(650);
-  });
-
-  it("sums milestone amounts when the projected total is missing", () => {
-    expect(
-      getEscrowTotalAmount({
-        type: "multi-release",
-        totalAmount: null,
-        snapshot: { milestones: [{ amount: "100" }, { amount: "150.5" }] },
-      } as Pick<EscrowSummary, "type" | "totalAmount" | "snapshot">),
-    ).toBe(250.5);
+  it("returns null until the read-model projects an amount", () => {
+    expect(getEscrowTotalAmount({ amount: null })).toBeNull();
+    expect(getEscrowTotalAmount({ amount: "  " })).toBeNull();
   });
 });
 

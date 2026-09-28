@@ -38,8 +38,10 @@ const WalletButtonSkeleton = ({
     )}
   >
     <Skeleton className="size-4 shrink-0 rounded" />
-    {!mobileBar ? <Skeleton className="h-4 w-14 shrink-0" /> : null}
-    <Skeleton className="h-4 w-24 shrink-0" />
+    {!mobileBar ? (
+      <Skeleton className="hidden h-4 w-14 shrink-0 sm:block" />
+    ) : null}
+    <Skeleton className="h-4 w-24 min-w-0 shrink" />
   </Button>
 );
 
@@ -77,9 +79,9 @@ export const WalletButton = ({
           >
             <Wallet data-icon="inline-start" />
             {!mobileBar ? (
-              <span className="font-medium">{walletName}</span>
+              <span className="hidden font-medium sm:inline">{walletName}</span>
             ) : null}
-            <span className="truncate font-mono text-sm text-muted-foreground">
+            <span className="min-w-0 truncate font-mono text-sm text-muted-foreground">
               {shortAddress}
             </span>
           </Button>

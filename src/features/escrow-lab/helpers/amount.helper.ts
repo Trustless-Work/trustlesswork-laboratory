@@ -20,33 +20,14 @@ export function formatAmount(
   });
 }
 
-/** Contract total: single-release `amount`, or the sum of multi-release milestone amounts. */
+/**
+ * Root escrow total for both flavors. Null until the read-model projects it.
+ */
 export function getEscrowTotalAmount(
-  escrow: Pick<EscrowSummary, "type" | "totalAmount" | "snapshot">,
-): number {
-  if (escrow.type === "single-release") {
-    const snapshot = escrow.snapshot;
-    if (snapshot && "amount" in snapshot) {
-      return parseAmount(snapshot.amount);
-    }
-    return 0;
-  }
-
-  if (escrow.totalAmount) {
-    return parseAmount(escrow.totalAmount);
-  }
-
-  const milestones =
-    escrow.snapshot && "milestones" in escrow.snapshot
-      ? escrow.snapshot.milestones
-      : [];
-
-  return milestones.reduce((sum, milestone) => {
-    if (!("amount" in milestone)) return sum;
-    const amount = milestone.amount;
-    if (typeof amount !== "string" && typeof amount !== "number") return sum;
-    return sum + parseAmount(amount);
-  }, 0);
+  escrow: Pick<EscrowSummary, "amount">,
+): number | null {
+  if (escrow.amount == null || escrow.amount.trim() === "") return null;
+  return parseAmount(escrow.amount);
 }
 
 export function getEscrowAssetSymbol(

@@ -18,6 +18,7 @@ import {
 } from "@/features/escrow-lab/helpers/lifecycle-flow.helper";
 import {
   getLifecycleStage,
+  getReleaseProgress,
   isActiveLifecycleStage,
   lifecycleLabel,
   lifecycleStageIcon,
@@ -48,6 +49,7 @@ export const LifecycleFlowCard = ({ escrow }: LifecycleFlowCardProps) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const model = useMemo(() => buildLifecycleFlow(escrow), [escrow]);
   const stage = getLifecycleStage(escrow);
+  const releaseProgress = getReleaseProgress(escrow);
   const stageIcon = lifecycleStageIcon(stage);
   const current = model.nodes.find((node) => node.id === model.currentNodeId);
   const nextActionIcon =
@@ -97,6 +99,9 @@ export const LifecycleFlowCard = ({ escrow }: LifecycleFlowCardProps) => {
                 )}
               >
                 {lifecycleLabel(stage)}
+                {releaseProgress && releaseProgress.total > 0
+                  ? ` ${releaseProgress.released}/${releaseProgress.total}`
+                  : ""}
               </span>
               {isActiveLifecycleStage(stage) ? (
                 <LiveStatusDot className="size-1.5" />

@@ -129,6 +129,8 @@ export function isMilestoneReceiver(
 }
 
 export function isReleased(escrow: EscrowSummary): boolean {
+  if (escrow.status === "released") return true;
+
   const snapshot = getSnapshot(escrow);
   if (!snapshot) return false;
 
@@ -143,6 +145,36 @@ export function isReleased(escrow: EscrowSummary): boolean {
     milestones.length > 0 &&
     milestones.every((m) => Boolean(asRecord(m)?.released))
   );
+}
+
+/** Multi-release only. Single-release has one escrow-level release, not one per milestone. */
+export function isMilestoneReleased(
+  escrow: EscrowSummary,
+  milestone: unknown,
+): boolean {
+  if (escrow.type !== "multi-release") return false;
+  if (escrow.status === "released") return true;
+  return Boolean(asRecord(milestone)?.released);
+}
+
+/** Multi-release milestone release counts. Null for single-release. */
+export function getReleaseProgress(escrow: EscrowSummary): {
+  released: number;
+  total: number;
+} | null {
+  if (escrow.type !== "multi-release") return null;
+
+  const milestones = getMilestones(escrow);
+
+  if (escrow.status === "released") {
+    return { released: milestones.length, total: milestones.length };
+  }
+
+  const released = milestones.filter((milestone) =>
+    Boolean(asRecord(milestone)?.released),
+  ).length;
+
+  return { released, total: milestones.length };
 }
 
 export function getMilestones(escrow: EscrowSummary): unknown[] {

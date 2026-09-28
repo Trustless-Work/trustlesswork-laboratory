@@ -39,6 +39,7 @@ export function useOperateForm() {
       evidence: "",
       reason: "",
       distributions: "G...,100",
+      withdrawDistributions: [{ address: "", amount: 0 }],
     },
     mode: "onChange",
   });

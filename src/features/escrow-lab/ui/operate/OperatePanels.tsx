@@ -45,7 +45,7 @@ export const OperateSkeleton = () => (
         </div>
       </section>
     </div>
-    <div className="lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100svh-9rem)] lg:overflow-y-auto">
+    <div className="scrollbar-ghost lg:sticky lg:top-32 lg:max-h-[calc(100svh-9rem)] lg:self-start lg:overflow-y-auto">
       <aside className="flex flex-col gap-4 lg:gap-6">
         <section className="rounded-3xl border border-border bg-card p-4 sm:p-5">
           <Skeleton className="h-6 w-28" />
@@ -64,12 +64,17 @@ export const OperateSkeleton = () => (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Skeleton className="h-4 w-12" />
-                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-5 w-20 rounded-4xl" />
+                <Skeleton className="h-3 w-16" />
               </div>
               <div className="space-y-1">
                 <Skeleton className="h-4 w-14" />
                 <Skeleton className="h-5 w-16 rounded-4xl" />
               </div>
+            </div>
+            <div className="space-y-1">
+              <Skeleton className="h-4 w-10" />
+              <Skeleton className="h-5 w-40" />
             </div>
             <div className="space-y-1">
               <Skeleton className="h-4 w-20" />
@@ -89,6 +94,10 @@ export const OperateSkeleton = () => (
             </div>
             <Skeleton className="h-3 w-14" />
           </div>
+          <div className="mt-3 flex items-center gap-2 px-3">
+            <Skeleton className="size-4 rounded-[4px]" />
+            <Skeleton className="h-4 w-20" />
+          </div>
           <div className="mt-3 flex flex-col gap-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
@@ -103,7 +112,10 @@ export const OperateSkeleton = () => (
                       <Skeleton className="h-3 w-20" />
                     </div>
                   </div>
-                  <Skeleton className="h-5 w-8 rounded-4xl" />
+                  <div className="flex gap-1.5">
+                    <Skeleton className="h-5 w-16 rounded-4xl" />
+                    <Skeleton className="h-5 w-8 rounded-4xl" />
+                  </div>
                 </div>
                 <Skeleton className="h-1 w-full rounded-full" />
               </div>
@@ -134,9 +146,51 @@ export const OperateSkeleton = () => (
                 </div>
               </li>
             ))}
-          </ul>
-        </section>
-      </aside>
+        </ul>
+      </section>
+      <section className="rounded-3xl border border-border bg-card p-4 sm:p-5">
+        <div className="flex items-baseline justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-3 w-44" />
+          </div>
+          <Skeleton className="h-3 w-4" />
+        </div>
+        <ul className="mt-3 flex flex-col gap-2">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <li
+              key={index}
+              className="rounded-xl border border-border bg-muted/30 p-2.5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3 w-28" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className="rounded-3xl border border-border bg-card p-4 sm:p-5">
+        <div className="flex items-baseline justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-3 w-36" />
+          </div>
+          <Skeleton className="h-3 w-4" />
+        </div>
+        <div className="mt-3 rounded-xl border border-border bg-muted/30 p-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          <Skeleton className="mt-2 h-7 w-full rounded-xl sm:rounded-full" />
+          <Skeleton className="mt-1.5 h-3 w-20" />
+        </div>
+      </section>
+    </aside>
     </div>
   </div>
 );

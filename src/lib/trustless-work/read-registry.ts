@@ -1,9 +1,7 @@
 import "server-only";
 
-import type {
-  EscrowRestService,
-  ListEscrowsParams,
-} from "@trustless-work/escrow-js";
+import type { EscrowRestService } from "@trustless-work/escrow-js";
+import type { ListEscrowsParams } from "@/types";
 
 export type ReadOperation =
   | "list"

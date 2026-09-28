@@ -6,7 +6,6 @@ import {
   getEscrowBalance,
   getMilestones,
   hasAnyDisputeResolved,
-  hasDisputeHistory,
   isMilestoneApproved,
   isMilestoneReceiver,
   isReleased,
@@ -325,15 +324,13 @@ export function gateAction(
       if (getEscrowBalance(escrow) <= 0) {
         return deny("No remaining balance to withdraw");
       }
-      if (!hasDisputeHistory(escrow)) {
-        return deny("Withdraw requires a prior dispute");
-      }
       if (escrow.type === "single-release") {
         if (!(isReleased(escrow) || dispute.resolved)) {
           return deny("Escrow must be released or dispute-resolved");
         }
         return allow();
       }
+      if (isReleased(escrow)) return allow();
       const allTerminal =
         milestones.length > 0 &&
         milestones.every((m) => {

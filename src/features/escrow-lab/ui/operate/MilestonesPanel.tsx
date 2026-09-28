@@ -13,7 +13,11 @@ import {
   getEscrowAssetSymbol,
   parseAmount,
 } from "@/features/escrow-lab/helpers/amount.helper";
-import { isMilestoneApproved } from "@/features/escrow-lab/helpers/lifecycle.helper";
+import {
+  getReleaseProgress,
+  isMilestoneApproved,
+  isMilestoneReleased,
+} from "@/features/escrow-lab/helpers/lifecycle.helper";
 import { useLinkedAddressHighlight } from "@/features/escrow-lab/hooks/useLinkedAddressHighlight";
 import {
   getAddressOccurrenceCounts,
@@ -33,6 +37,7 @@ interface MilestonesPanelProps {
   milestones: unknown[];
   selected: number[];
   onToggle: (index: number) => void;
+  onSelectAll: (selected: boolean) => void;
 }
 
 export const MilestonesPanel = ({
@@ -40,8 +45,10 @@ export const MilestonesPanel = ({
   milestones,
   selected,
   onToggle,
+  onSelectAll,
 }: MilestonesPanelProps) => {
   const isMulti = normalizeEscrowType(escrow.type) === "multi-release";
+  const releaseProgress = getReleaseProgress(escrow);
   const { getLinkedAddressProps } = useLinkedAddressHighlight();
 
   const receiverCounts = useMemo(() => {
@@ -57,13 +64,23 @@ export const MilestonesPanel = ({
     return getAddressOccurrenceCounts([{ addresses: receivers }]);
   }, [isMulti, milestones]);
 
+  const allSelected =
+    milestones.length > 0 &&
+    milestones.every((_, index) => selected.includes(index));
+  const someSelected =
+    !allSelected && selected.some((index) => index >= 0 && index < milestones.length);
+
   return (
     <section className="rounded-3xl border border-border bg-card p-4 sm:p-6 lg:p-8">
       <div className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold tracking-tight">Milestones</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Select milestones for approve, release, status, and edit actions.
+            {isMulti
+              ? releaseProgress && releaseProgress.total > 0
+                ? `${releaseProgress.released}/${releaseProgress.total} released. Select milestones to approve, release, or update.`
+                : "Select milestones to approve, release, or update."
+              : "Approve each milestone here. Release happens once, for the whole escrow, after every milestone is approved."}
           </p>
         </div>
         <p className="shrink-0 text-sm text-muted-foreground">
@@ -79,6 +96,21 @@ export const MilestonesPanel = ({
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-3">
+          <div className="flex items-center gap-2 px-3">
+            <Checkbox
+              id="milestones-select-all"
+              checked={
+                allSelected ? true : someSelected ? "indeterminate" : false
+              }
+              onCheckedChange={(value) => onSelectAll(value === true)}
+            />
+            <Label
+              htmlFor="milestones-select-all"
+              className="cursor-pointer text-sm font-normal"
+            >
+              Select all
+            </Label>
+          </div>
           {milestones.map((milestone, index) => {
             const row = asRecord(milestone);
             const approvals = asRecord(row?.approvals);
@@ -92,6 +124,7 @@ export const MilestonesPanel = ({
                 ? row.receiver.trim()
                 : null;
             const isSelected = selected.includes(index);
+            const released = isMilestoneReleased(escrow, milestone);
 
             return (
               <div
@@ -119,17 +152,23 @@ export const MilestonesPanel = ({
                       </span>
                       <span className="block text-xs text-muted-foreground">
                         Status: {String(row?.status ?? "pending")}
+                        {released ? " · Released" : ""}
                       </span>
                     </Label>
                   </div>
-                  <Badge
-                    variant={
-                      isMilestoneApproved(milestone) ? "secondary" : "outline"
-                    }
-                    className="tabular-nums"
-                  >
-                    {count}/{target}
-                  </Badge>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {released ? (
+                      <Badge variant="secondary">Released</Badge>
+                    ) : null}
+                    <Badge
+                      variant={
+                        isMilestoneApproved(milestone) ? "secondary" : "outline"
+                      }
+                      className="tabular-nums"
+                    >
+                      {count}/{target}
+                    </Badge>
+                  </div>
                 </div>
                 <Progress value={pct} />
                 {isMulti ? (

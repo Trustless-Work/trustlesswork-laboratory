@@ -24,7 +24,7 @@ import { useWalletContext } from "@/providers/WalletProvider";
 import type { LabWriteAction } from "@/types";
 
 export const OperateTab = () => {
-  const { escrow, escrowId, isLoading } = useActiveEscrow();
+  const { escrow, escrowId, isLoading, detail } = useActiveEscrow();
   const { setTab } = useLabUrlState();
   const { walletAddress } = useWalletContext();
   const write = useEscrowWrite();
@@ -58,6 +58,10 @@ export const OperateTab = () => {
     );
   };
 
+  const selectAll = (next: boolean) => {
+    setSelected(next ? milestones.map((_, index) => index) : []);
+  };
+
   const run = async (action: LabWriteAction, payload: unknown) => {
     await write.mutateAsync({
       type: normalizeEscrowType(escrow.type),
@@ -81,13 +85,19 @@ export const OperateTab = () => {
           />
         </Form>
       </div>
-      <div className="lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100svh-9rem)] lg:overflow-y-auto lg:overscroll-contain">
-        <OperateAside escrow={escrow} dispute={dispute}>
+      <div className="scrollbar-ghost lg:sticky lg:top-32 lg:max-h-[calc(100svh-9rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain">
+        <OperateAside
+          escrow={escrow}
+          dispute={dispute}
+          events={detail?.events ?? []}
+          deposits={detail?.deposits ?? []}
+        >
           <MilestonesPanel
             escrow={escrow}
             milestones={milestones}
             selected={selected}
             onToggle={toggleIndex}
+            onSelectAll={selectAll}
           />
         </OperateAside>
       </div>

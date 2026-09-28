@@ -39,14 +39,14 @@ export const INFO_ENDPOINTS: readonly InfoEndpointDef[] = [
     purpose:
       "Keyset-paginated list with filters. Use for dashboards and pickers.",
     howToUse:
-      "scope=mine returns escrows for verified wallets on this API key plus platform-attributed ones. scope=all returns every escrow on the network. Combine filters (status, contractType, participant, role, engagementId) and page with cursor + limit.",
+      "scope=mine returns escrows for verified wallets on this API key plus platform-attributed ones. scope=all returns every escrow on the network. Combine filters (status, type, participant, role, engagementId) and page with cursor + limit.",
     requestShape: [
       "GET /escrows",
       "",
       "Query",
       "  scope?: \"mine\" | \"all\"",
       "  status?: \"active\" | \"released\" | \"disputed\"",
-      "  contractType?: \"single-release\" | \"multi-release\"",
+      "  type?: \"single-release\" | \"multi-release\"",
       "  engagementId?: string",
       "  participant?: string",
       "  role?: Role",

@@ -59,12 +59,11 @@ export const InfoEndpointListFilters = ({
         ]}
       />
       <FilterSelect
-        label="contractType"
-        value={listParams.contractType ?? "any"}
+        label="type"
+        value={listParams.type ?? "any"}
         onValueChange={(value) =>
           patch({
-            contractType:
-              value === "any" ? undefined : (value as EscrowType),
+            type: value === "any" ? undefined : (value as EscrowType),
           })
         }
         options={[

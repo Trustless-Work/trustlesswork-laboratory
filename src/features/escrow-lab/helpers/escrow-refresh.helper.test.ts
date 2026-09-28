@@ -15,7 +15,7 @@ function detail(
       type: "single-release",
       engagementId: "eng",
       status: "active",
-      totalAmount: null,
+      amount: null,
       balance: "0",
       asset: null,
       lastLedgerSeq: "1",

@@ -4,8 +4,10 @@ import {
   getDispute,
   getLifecycleStage,
   getMilestones,
+  getReleaseProgress,
   hasAnyDisputeResolved,
   hasDisputeHistory,
+  isMilestoneReleased,
   isStructurallyLocked,
   lifecycleStageIcon,
 } from "@/features/escrow-lab/helpers/lifecycle.helper";
@@ -104,6 +106,40 @@ describe("multi-release dispute helpers", () => {
 
   it("detects dispute history", () => {
     expect(hasDisputeHistory(escrow)).toBe(true);
+  });
+});
+
+describe("release progress", () => {
+  it("keeps single-release at the escrow, not on each milestone", () => {
+    const escrow = stubEscrow({
+      type: "single-release",
+      status: "released",
+      balance: "50",
+      snapshot: {
+        released: true,
+        milestones: [
+          { description: "Wireframes", status: "pending" },
+          { description: "Launch", status: "pending" },
+        ],
+      } as EscrowSummary["snapshot"],
+    });
+
+    expect(getReleaseProgress(escrow)).toBeNull();
+    expect(isMilestoneReleased(escrow, { status: "pending" })).toBe(false);
+    expect(getLifecycleStage(escrow)).toBe("released");
+  });
+
+  it("counts multi-release milestones independently", () => {
+    const escrow = stubEscrow({
+      type: "multi-release",
+      snapshot: {
+        milestones: [{ released: true }, { released: false }],
+      } as EscrowSummary["snapshot"],
+    });
+
+    expect(getReleaseProgress(escrow)).toEqual({ released: 1, total: 2 });
+    expect(isMilestoneReleased(escrow, { released: false })).toBe(false);
+    expect(getLifecycleStage(escrow)).not.toBe("released");
   });
 });
 

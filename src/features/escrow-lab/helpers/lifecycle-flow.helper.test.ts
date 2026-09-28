@@ -274,5 +274,33 @@ describe("buildLifecycleFlow", () => {
     expect(model.currentNodeId).toBeNull();
     expect(statusMap(model)["withdraw-remaining-funds"]).toBe("done");
     expect(statusMap(model)["release-funds"]).toBe("done");
+    expect(
+      model.nodes.find((node) => node.id === "release-funds")?.detail,
+    ).toBeUndefined();
+  });
+
+  it("points a released escrow with leftover balance at withdraw", () => {
+    const model = buildLifecycleFlow(
+      stubEscrow({
+        type: "single-release",
+        balance: "50",
+        status: "released",
+        snapshot: {
+          milestones: [
+            {
+              description: "A",
+              status: "pending",
+              approvals: { target: 1, approvalCount: 1, approvedBy: ["G…"] },
+            },
+          ],
+          dispute: { isDisputed: false, resolved: false, reason: "" },
+          released: true,
+        },
+      }),
+    );
+
+    expect(model.currentNodeId).toBe("withdraw-remaining-funds");
+    expect(statusMap(model)["release-funds"]).toBe("done");
+    expect(statusMap(model)["withdraw-remaining-funds"]).toBe("current");
   });
 });

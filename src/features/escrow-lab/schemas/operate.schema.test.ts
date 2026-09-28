@@ -95,6 +95,7 @@ describe("operateLabFormSchema", () => {
       evidence: "",
       reason: "Needs review",
       distributions: "G...,100",
+      withdrawDistributions: [{ address: "", amount: 0 }],
     });
     expect(result.success).toBe(true);
   });
@@ -108,6 +109,7 @@ describe("operateLabFormSchema", () => {
       status: "",
       reason: "",
       distributions: "",
+      withdrawDistributions: [{ address: "", amount: 0 }],
     });
     expect(result.success).toBe(false);
   });

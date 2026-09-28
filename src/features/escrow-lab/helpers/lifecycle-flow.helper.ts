@@ -4,6 +4,7 @@ import {
   getDispute,
   getEscrowBalance,
   getMilestones,
+  getReleaseProgress,
   hasAnyDisputeResolved,
   isMilestoneApproved,
   isReleased,
@@ -237,7 +238,7 @@ function buildGraph(type: EscrowType): {
         "Dispute resolvers",
         isMulti
           ? "After every milestone is released or resolved."
-          : "After release or a resolved dispute. Sweeps leftovers.",
+          : "After release or a resolved dispute, even with no dispute. Sweeps leftovers.",
         "withdraw-remaining-funds",
         6.8,
         2.3,
@@ -509,15 +510,17 @@ function detailForNode(
   id: LifecycleFlowNodeId,
   escrow: EscrowSummary,
 ): string | undefined {
+  const progress = getReleaseProgress(escrow);
+  if (id === "release-funds" && progress && progress.total > 0) {
+    return `${progress.released}/${progress.total} released`;
+  }
+
   const type = normalizeEscrowType(escrow.type);
   if (type !== "multi-release") return undefined;
 
   const multi = countMultiProgress(escrow);
   if (multi.total === 0) return undefined;
 
-  if (id === "release-funds") {
-    return `${multi.released}/${multi.total} released`;
-  }
   if (id === "approve-milestones") {
     return `${multi.approved}/${multi.total} approved`;
   }
@@ -543,8 +546,8 @@ export function buildLifecycleFlow(escrow: EscrowSummary): LifecycleFlowModel {
     type,
     caption:
       type === "single-release"
-        ? "Hard path: Deploy → Approve → Release. Fund and Change status are independent. Withdraw sits on the dispute lane."
-        : "Hard path: Deploy → Approve → Release (per milestone). Fund and Change status are independent. Withdraw needs every milestone terminal.",
+        ? "Hard path: Deploy → Approve → Release. Fund and Change status are independent. Withdraw sweeps leftovers after release or a resolved dispute."
+        : "Hard path: Deploy → Approve → Release (per milestone). Fund and Change status are independent. Withdraw sweeps leftovers once every milestone is terminal.",
     nodes,
     edges: graph.edges,
     currentNodeId,

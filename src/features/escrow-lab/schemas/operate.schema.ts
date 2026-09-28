@@ -407,6 +407,15 @@ export const operateLabFormSchema = z.object({
   evidence: z.string().max(500).optional(),
   reason: z.string().min(1, "Reason is required").max(500),
   distributions: z.string().min(1, "Distributions are required"),
+  withdrawDistributions: z
+    .array(
+      z.object({
+        address: z.string(),
+        amount: z.number().min(0),
+      }),
+    )
+    .min(1)
+    .max(50),
 });
 
 export type OperateLabFormValues = z.infer<typeof operateLabFormSchema>;
